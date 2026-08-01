@@ -1,44 +1,40 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Leaf, Upload, TrendingUp, Droplets, BookOpen, Smartphone, Globe, Zap, Sparkles, Mic, Languages, MapPin, Handshake } from "lucide-react"
+import { Leaf, Upload, TrendingUp, BookOpen, Smartphone, Globe, Zap, Sparkles, Mic, Languages, MapPin, Handshake, PhoneCall, Calendar, Newspaper } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
-
-const langFlags: Record<string, string> = {
-  en: "🇬🇧",
-}
 
 export default function FeaturesPage() {
   const { t, languages } = useLanguage()
 
   const features = [
     {
-      icon: Leaf,
+      icon: Upload,
       titleKey: "features.card1Title",
       descKey: "features.card1Desc",
-      color: "from-green-500 to-emerald-600",
-      bgGradient: "from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10",
-    },
-    {
-      icon: Upload,
-      titleKey: "features.card2Title",
-      descKey: "features.card2Desc",
       color: "from-teal-500 to-cyan-600",
       bgGradient: "from-teal-50 to-cyan-50 dark:from-teal-900/10 dark:to-cyan-900/10",
     },
     {
-      icon: Droplets,
-      titleKey: "features.card3Title",
-      descKey: "features.card3Desc",
-      color: "from-sky-500 to-blue-600",
-      bgGradient: "from-sky-50 to-blue-50 dark:from-sky-900/10 dark:to-blue-900/10",
+      icon: Calendar,
+      titleKey: "features.card2Title",
+      descKey: "features.card2Desc",
+      color: "from-green-500 to-emerald-600",
+      bgGradient: "from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10",
     },
     {
       icon: TrendingUp,
-      titleKey: "features.card4Title",
-      descKey: "features.card4Desc",
+      titleKey: "features.card3Title",
+      descKey: "features.card3Desc",
       color: "from-amber-500 to-orange-600",
       bgGradient: "from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10",
+    },
+    {
+      icon: Newspaper,
+      titleKey: "features.card4Title",
+      descKey: "features.card4Desc",
+      color: "from-sky-500 to-blue-600",
+      bgGradient: "from-sky-50 to-blue-50 dark:from-sky-900/10 dark:to-blue-900/10",
     },
     {
       icon: BookOpen,
@@ -54,6 +50,12 @@ export default function FeaturesPage() {
       color: "from-emerald-500 to-teal-600",
       bgGradient: "from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10",
     },
+  ]
+
+  const heroPoints = [
+    "features.heroPoint1",
+    "features.heroPoint2",
+    "features.heroPoint3",
   ]
 
   const containerVariants = {
@@ -180,6 +182,51 @@ export default function FeaturesPage() {
           </p>
         </motion.div>
 
+        {/* Flagship Voice Calling Feature */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="relative mb-16 overflow-hidden rounded-3xl border border-emerald-200/70 bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 p-8 sm:p-12 shadow-2xl"
+        >
+          <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-emerald-300/20 blur-3xl" />
+
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-emerald-50 backdrop-blur-sm mb-5">
+                <Sparkles className="h-4 w-4" />
+                {t("features.heroBadge")}
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
+                {t("features.heroTitle")}
+              </h2>
+              <p className="text-emerald-50/95 text-lg leading-relaxed mb-6 max-w-2xl">
+                {t("features.heroDesc")}
+              </p>
+              <ul className="space-y-3">
+                {heroPoints.map((pointKey) => (
+                  <li key={pointKey} className="flex items-start gap-3 text-emerald-50">
+                    <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold">✓</span>
+                    <span className="text-base">{t(pointKey)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative flex h-56 w-56 sm:h-64 sm:w-64 items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-white/10 animate-pulse" />
+                <div className="absolute inset-4 rounded-full bg-white/10" />
+                <div className="absolute inset-8 rounded-full bg-white/15" />
+                <div className="relative flex h-28 w-28 sm:h-32 sm:w-32 items-center justify-center rounded-full bg-white text-emerald-700 shadow-2xl">
+                  <PhoneCall className="h-14 w-14 sm:h-16 sm:w-16" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Features Grid with Enhanced Cards */}
         <motion.div
           variants={containerVariants}
@@ -266,8 +313,7 @@ export default function FeaturesPage() {
               >
                 <div className="relative bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-[0_0_20px_rgba(74,222,128,0.5)] hover:border-green-400 transition-all duration-300">
                   <div className="flex flex-col items-center">
-                    <span className="text-4xl mb-3 drop-shadow-sm group-hover:scale-110 transition-transform duration-300">{langFlags[lang.code] ?? "🇮🇳"}</span>
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-1 group-hover:text-green-700 transition-colors">{lang.name}</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-green-700 transition-colors">{lang.name}</h3>
                     <div className="px-3 py-1 bg-green-50 dark:bg-green-900/20 rounded-full group-hover:bg-green-100 transition-colors">
                       <p className="text-xs font-medium text-green-700 dark:text-green-400">{lang.nativeName}</p>
                     </div>
