@@ -22,6 +22,20 @@ def get_signed_url(agent_id: str | None, api_key: str | None) -> str | None:
         return None
 
 
+LANG_MAP = {
+    "en": "English",
+    "gu": "Gujarati",
+    "hi": "Hindi",
+    "mr": "Marathi",
+    "pa": "Punjabi",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "kn": "Kannada",
+    "bn": "Bengali",
+    "or": "Odia",
+}
+
+
 def start_voice_session(
     language: str,
     crop: str,
@@ -31,13 +45,14 @@ def start_voice_session(
 ):
     """Prepare data for an ElevenLabs voice session."""
     signed_url = get_signed_url(ELEVENLABS_AGENT_ID, ELEVENLABS_API_KEY)
+    lang_name = LANG_MAP.get(language.lower(), language)
 
     return {
         "api_key_loaded": ELEVENLABS_API_KEY is not None,
         "agent_id": ELEVENLABS_AGENT_ID,
         "signed_url": signed_url,
         "dynamic_variables": {
-            "language": language,
+            "language": lang_name,
             "crop": crop,
             "disease": disease,
             "confidence": confidence,

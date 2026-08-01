@@ -1,7 +1,9 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-import app.services.elevenlabs_service as elevenlabs_service
+from app.services.elevenlabs_service import (
+    start_voice_session as start_voice_session_service,
+)
 
 router = APIRouter(prefix="/voice", tags=["Voice Assistant"])
 
@@ -16,10 +18,12 @@ class VoiceSessionRequest(BaseModel):
 
 @router.post("/start-voice-session")
 async def start_voice_session(request: VoiceSessionRequest):
-    return elevenlabs_service.start_voice_session(
+    result = start_voice_session_service(
         language=request.language,
         crop=request.crop,
         disease=request.disease,
         confidence=request.confidence,
         severity=request.severity,
     )
+
+    return result
