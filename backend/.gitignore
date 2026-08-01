@@ -1,0 +1,23 @@
+# Secrets
+.env
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.log
+
+# Never commit datasets or training artifacts
+data/
+ml/
+logs/
+archive/
+models/
+
+# Large model weights (downloaded from Hugging Face at runtime)
+trained_models/disease_detection/best_model.pth
+trained_models/disease_detection/evaluation/
+trained_models/whisper_multilingual/
+trained_models/tinyllama_agricultural/
+trained_models/agricultural_tinyllama/agricultural_kb.json

@@ -1,0 +1,34 @@
+# Sasya AI API — runtime dependencies (inference only)
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+gradio>=4.44.0,<5.0.0
+python-multipart>=0.0.9
+pydantic>=2.0
+
+# PyTorch stack — CPU on HF free tier; GPU locally via cu124 index
+torch>=2.1.0
+torchvision>=0.16.0
+timm>=1.0.0
+albumentations>=1.4.0
+
+# NLP / speech
+transformers>=4.40.0
+# Gradio 4.x needs HfFolder — blocked in huggingface_hub 1.0+
+huggingface_hub>=0.23.2,<0.26.0
+accelerate>=0.27.0
+peft>=0.10.0
+sentencepiece>=0.2.0
+protobuf>=4.25.0
+safetensors>=0.4.0
+
+# Audio / vision
+librosa>=0.10.0
+soundfile>=0.12.0
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# HF ZeroGPU only — not needed on CPU basic
+# spaces>=0.30.0
+edge-tts>=6.1.0
+gTTS>=2.5.0
+httpx>=0.27.0
