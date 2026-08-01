@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import { WifiOff, Wifi } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLanguage } from '@/lib/i18n/language-context'
 
 export function OfflineIndicator() {
+  const { t } = useLanguage()
   const [isOffline, setIsOffline] = useState(false)
   const [showReconnected, setShowReconnected] = useState(false)
 
@@ -45,8 +47,8 @@ export function OfflineIndicator() {
             <div className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
               <WifiOff className="h-5 w-5 animate-pulse" />
               <div>
-                <p className="font-semibold">No Internet Connection</p>
-                <p className="text-xs text-red-100">Please check your network</p>
+                <p className="font-semibold">{t("offline.noConnection")}</p>
+                <p className="text-xs text-red-100">{t("offline.checkNetwork")}</p>
               </div>
             </div>
           </motion.div>
@@ -64,8 +66,8 @@ export function OfflineIndicator() {
             <div className="bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
               <Wifi className="h-5 w-5" />
               <div>
-                <p className="font-semibold">Back Online</p>
-                <p className="text-xs text-green-100">Connection restored</p>
+                <p className="font-semibold">{t("offline.backOnline")}</p>
+                <p className="text-xs text-green-100">{t("offline.connectionRestored")}</p>
               </div>
             </div>
           </motion.div>
