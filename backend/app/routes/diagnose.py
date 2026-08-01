@@ -34,10 +34,13 @@ async def image_diagnosis(
     # -----------------------------
     # Voice Assistant Decision Logic (Computed on canonical raw result)
     # -----------------------------
+    raw_conf = result.get("confidence", 0)
+    conf_pct = raw_conf * 100 if raw_conf <= 1.0 else raw_conf
+
     need_voice = (
-        result["confidence"] < 70
-        or result["disease"].lower() == "unknown"
-        or result["confidence_band"].lower() != "high"
+        conf_pct < 70
+        or str(result.get("disease", "")).lower() == "unknown"
+        or str(result.get("confidence_band", "")).lower() != "high"
     )
 
     result = chat_service.translate_diagnosis_fields(result, language)

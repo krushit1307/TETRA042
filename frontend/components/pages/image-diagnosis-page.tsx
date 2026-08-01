@@ -19,6 +19,7 @@ interface DiagnosisResult {
   treatment: string[]
   prevention: string[]
   need_voice?: boolean
+  needVoice?: boolean
 }
 
 const languages = [
@@ -70,6 +71,15 @@ export default function ImageDiagnosisPage() {
     try {
       const response = await apiClient.imageDiagnosis(imageFile, selectedLanguage)
 
+      const rawConf = response.confidence ?? 0
+      const confPct = rawConf <= 1 ? rawConf * 100 : rawConf
+
+      const needVoice = response.need_voice ?? (response as any).needVoice ?? (
+        confPct < 70 ||
+        (response.confidence_band && response.confidence_band.toLowerCase() !== 'high') ||
+        (response.disease && response.disease.toLowerCase() === 'unknown')
+      )
+
       setDiagnosis({
         disease: response.disease,
         confidence: response.confidence,
@@ -78,7 +88,8 @@ export default function ImageDiagnosisPage() {
         cause: response.cause || '',
         treatment: response.treatment,
         prevention: response.prevention ? [response.prevention] : [],
-        need_voice: response.need_voice,
+        need_voice: needVoice,
+        needVoice: needVoice,
       })
       toast.success('Analysis complete!', { id: 'image-analysis' })
     } catch (err: any) {
@@ -292,7 +303,7 @@ export default function ImageDiagnosisPage() {
                 </div>
 
                 {/* Voice Assistant Call Section */}
-                {diagnosis.need_voice && (
+                {Boolean(diagnosis.need_voice ?? diagnosis.needVoice) && (
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -310,16 +321,34 @@ export default function ImageDiagnosisPage() {
                       className="mt-5 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5"
                       onClick={async () => {
                         try {
-                          // Step 1: Get voice session details from backend
-                          const session = await apiClient.startVoiceSession({
+                          // Step 1: Get voice session details from backend with resilient fallback
+                          let agentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_0001kyy4ph20e06tqysytfz3fkc8"
+                          let dynamicVariables: Record<string, any> = {
                             language: selectedLanguage,
                             crop: diagnosis.crop,
                             disease: diagnosis.disease,
                             confidence: diagnosis.confidence,
                             severity: diagnosis.confidenceBand,
-                          })
+                          }
 
-                          console.log("Voice session started:", session)
+                          try {
+                            const session = await apiClient.startVoiceSession({
+                              language: selectedLanguage,
+                              crop: diagnosis.crop,
+                              disease: diagnosis.disease,
+                              confidence: diagnosis.confidence,
+                              severity: diagnosis.confidenceBand,
+                            })
+                            if (session?.agent_id) {
+                              agentId = session.agent_id
+                            }
+                            if (session?.dynamic_variables) {
+                              dynamicVariables = session.dynamic_variables
+                            }
+                            console.log("Voice session started:", session)
+                          } catch (backendErr) {
+                            console.warn("Backend startVoiceSession warning, using direct fallback:", backendErr)
+                          }
 
                           // Step 2: Start ElevenLabs conversation with auto-termination & event logging
                           const goodbyePhrases = [
@@ -338,11 +367,11 @@ export default function ImageDiagnosisPage() {
                           let conversationRef: any = null
 
                           const conversation = await Conversation.startSession({
-                            agentId: session.agent_id,
-                            dynamicVariables: session.dynamic_variables,
+                            agentId: agentId,
+                            dynamicVariables: dynamicVariables,
 
                             onConnect: (props) => {
-                              console.log("✅ Connected to ElevenLabs. Conversation ID:", props?.conversationId, "Variables:", session.dynamic_variables)
+                              console.log("✅ Connected to ElevenLabs. Conversation ID:", props?.conversationId, "Variables:", dynamicVariables)
                               toast.success("Connected to Sasya AI Voice Assistant")
                             },
 
