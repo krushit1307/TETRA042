@@ -8,6 +8,7 @@ import { Upload, CheckCircle, AlertCircle, Loader, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { Conversation } from "@elevenlabs/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import type { SupportedLanguage } from "@/lib/i18n/languages"
 
@@ -316,8 +317,9 @@ export default function ImageDiagnosisPage() {
                       className="mt-5 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5"
                       onClick={async () => {
                         try {
-                          // Step 1: Get voice session details from backend with resilient fallback
+                          // Step 1: Get voice session details from backend
                           let agentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_0001kyy4ph20e06tqysytfz3fkc8"
+                          let signedUrl: string | undefined = undefined
                           let dynamicVariables: Record<string, any> = {
                             language: selectedLanguage,
                             crop: diagnosis.crop,
@@ -325,27 +327,38 @@ export default function ImageDiagnosisPage() {
                             confidence: diagnosis.confidence,
                             severity: diagnosis.confidenceBand,
                           }
+                          let sessionObject: any = null
 
                           try {
-                            const session = await apiClient.startVoiceSession({
+                            sessionObject = await apiClient.startVoiceSession({
                               language: selectedLanguage,
                               crop: diagnosis.crop,
                               disease: diagnosis.disease,
                               confidence: diagnosis.confidence,
                               severity: diagnosis.confidenceBand,
                             })
-                            if (session?.agent_id) {
-                              agentId = session.agent_id
+                            if (sessionObject?.agent_id) {
+                              agentId = sessionObject.agent_id
                             }
-                            if (session?.dynamic_variables) {
-                              dynamicVariables = session.dynamic_variables
+                            if (sessionObject?.signed_url) {
+                              signedUrl = sessionObject.signed_url
                             }
-                            console.log("Voice session started:", session)
+                            if (sessionObject?.dynamic_variables) {
+                              dynamicVariables = sessionObject.dynamic_variables
+                            }
                           } catch (backendErr) {
                             console.warn("Backend startVoiceSession warning, using direct fallback:", backendErr)
                           }
 
-                          // Step 2: Start ElevenLabs conversation with auto-termination & event logging
+                          // Task 3: Log EVERYTHING before startSession()
+                          console.log("🎙️ [ElevenLabs Pre-Connect Log]:")
+                          console.log("  - agent_id:", agentId)
+                          console.log("  - signed_url:", signedUrl)
+                          console.log("  - dynamicVariables:", dynamicVariables)
+                          console.log("  - selected language:", selectedLanguage)
+                          console.log("  - complete session object:", sessionObject)
+
+                          // Step 2: Start ElevenLabs conversation
                           const goodbyePhrases = [
                             "bye",
                             "goodbye",
@@ -361,25 +374,24 @@ export default function ImageDiagnosisPage() {
                           let shouldEndCall = false
                           let conversationRef: any = null
 
-                          const conversation = await Conversation.startSession({
-                            agentId: agentId,
+                          const sessionOptions: any = {
                             dynamicVariables: dynamicVariables,
 
-                            onConnect: (props) => {
+                            onConnect: (props: any) => {
                               console.log("✅ Connected to ElevenLabs. Conversation ID:", props?.conversationId, "Variables:", dynamicVariables)
                               toast.success("Connected to Sasya AI Voice Assistant")
                             },
 
-                            onDisconnect: (details) => {
+                            onDisconnect: (details: any) => {
                               console.log("❌ Disconnected from ElevenLabs. Details:", JSON.stringify(details, null, 2))
                               toast.info("Voice session ended")
                             },
 
-                            onStatusChange: ({ status }) => {
+                            onStatusChange: ({ status }: any) => {
                               console.log("ℹ️ Connection status changed:", status)
                             },
 
-                            onModeChange: async ({ mode }) => {
+                            onModeChange: async ({ mode }: any) => {
                               console.log("🔄 Conversation mode changed:", mode)
 
                               if (shouldEndCall && mode === "listening") {
@@ -391,7 +403,7 @@ export default function ImageDiagnosisPage() {
                               }
                             },
 
-                            onMessage: (messagePayload) => {
+                            onMessage: (messagePayload: any) => {
                               console.log("📩 Message received:", messagePayload)
 
                               const isUser = messagePayload.role === "user" || (messagePayload as any).source === "user"
@@ -406,31 +418,40 @@ export default function ImageDiagnosisPage() {
                               }
                             },
 
-                            onError: (message, context) => {
-                              console.error("❌ ElevenLabs Detailed Error:")
+                            onError: (message: any, context: any) => {
+                              console.error("❌ ElevenLabs SDK onError Callback:")
                               console.error("  - Message:", message)
                               console.error("  - Context:", JSON.stringify(context, null, 2))
-                              if (context && typeof context === "object") {
-                                console.error("  - Code:", (context as any).code || (context as any).status)
-                                console.error("  - Details:", (context as any).details || (context as any).reason)
-                                if ((context as any).stack) {
-                                  console.error("  - Stack:", (context as any).stack)
-                                }
-                              }
                               toast.error(`Voice Error: ${message || "Connection failed"}`)
                             },
 
-                            onDebug: (info) => {
+                            onDebug: (info: any) => {
                               console.log("🐛 ElevenLabs Debug Info:", info)
                             },
-                          })
+                          }
+
+                          if (signedUrl) {
+                            sessionOptions.signedUrl = signedUrl
+                          } else {
+                            sessionOptions.agentId = agentId
+                          }
+
+                          const conversation = await Conversation.startSession(sessionOptions)
 
                           conversationRef = conversation
-                          console.log("Conversation instance:", conversation)
+                          console.log("Conversation instance created:", conversation)
 
-                        } catch (err) {
-                          console.error("Failed to start voice session:", err)
-                          toast.error("Failed to connect to voice assistant.")
+                        } catch (err: any) {
+                          console.error("❌ [ElevenLabs Connection Failure Breakdown]:")
+                          console.error("  - Full Error Object:", err)
+                          console.error("  - Message:", err?.message || err)
+                          console.error("  - Code:", err?.code || err?.status || err?.name || "N/A")
+                          console.error("  - Stack:", err?.stack || "N/A")
+                          console.error("  - WebSocket Close Code:", err?.websocket?.code || err?.wsCode || err?.code || "N/A")
+                          console.error("  - WebSocket Close Reason:", err?.websocket?.reason || err?.wsReason || err?.reason || "N/A")
+
+                          const errMsg = err?.message || (typeof err === "string" ? err : "Failed to connect to agent")
+                          toast.error(`Connection Failed: ${errMsg}`)
                         }
                       }}
                     >
