@@ -2,29 +2,32 @@
 
 import { motion } from "framer-motion"
 import { Leaf, Mic, Upload, TrendingUp, Droplets, BookOpen, Smartphone } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface HomePageProps {
   onNavigate: (page: string) => void
 }
 
 export default function HomePage({ onNavigate }: HomePageProps) {
+  const { t } = useLanguage()
+
   const features = [
     {
       icon: Leaf,
-      title: "Detect Crop Diseases",
-      description: "Upload images of your crops and get instant AI-powered disease diagnosis",
+      title: t("home.feature1Title"),
+      description: t("home.feature1Desc"),
       color: "from-green-400 to-green-600",
     },
     {
       icon: Mic,
-      title: "Ask in Any Language",
-      description: "Voice and text queries in multiple Indian languages for easy communication",
+      title: t("home.feature2Title"),
+      description: t("home.feature2Desc"),
       color: "from-blue-400 to-blue-600",
     },
     {
       icon: TrendingUp,
-      title: "Smart Recommendations",
-      description: "Get personalized advice on fertilizers, irrigation, and crop management",
+      title: t("home.feature3Title"),
+      description: t("home.feature3Desc"),
       color: "from-amber-400 to-amber-600",
     },
   ]
@@ -76,7 +79,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           >
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
               <Leaf className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Welcome to Sasya AI</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("home.welcomeBadge")}</span>
             </div>
           </motion.div>
 
@@ -86,9 +89,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 text-gray-900 dark:text-white px-4"
           >
-            Empowering Farmers with{" "}
+            {t("home.heroTitle")}{" "}
             <span className="bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-              AI-driven Insights
+              {t("home.heroHighlight")}
             </span>
           </motion.h1>
 
@@ -98,7 +101,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto px-4"
           >
-            KrishiMitra AI - Your intelligent agricultural advisor available 24/7 in your language
+            {t("home.heroSubtitle")}
           </motion.p>
 
           <motion.button
@@ -110,7 +113,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             whileTap={{ scale: 0.95 }}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg transition-all shadow-lg hover:shadow-xl min-h-[44px]"
           >
-            Start with Sasya AI
+            {t("home.ctaStart")}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
@@ -126,8 +129,8 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">Core Features</h2>
-          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 px-4">Discover what makes KrishiMitra AI special</p>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">{t("home.coreFeatures")}</h2>
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 px-4">{t("home.coreFeaturesDesc")}</p>
         </motion.div>
 
         <motion.div
@@ -173,18 +176,18 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">Platform Capabilities</h2>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 px-4">Everything you need for modern farming</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 dark:text-white">{t("home.capabilities")}</h2>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 px-4">{t("home.capabilitiesDesc")}</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: Leaf, title: "Multilingual Voice & Text", desc: "Query in your preferred Indian language" },
-              { icon: Upload, title: "Crop Disease Diagnosis", desc: "AI-powered image analysis for plant health" },
-              { icon: Droplets, title: "Irrigation Advice", desc: "Smart water management recommendations" },
-              { icon: TrendingUp, title: "Market Insights", desc: "Real-time crop prices and market trends" },
-              { icon: BookOpen, title: "Agricultural Tips", desc: "24/7 access to farming best practices" },
-              { icon: Smartphone, title: "Mobile Ready", desc: "Seamless experience on all devices" },
+              { icon: Leaf, titleKey: "home.cap1Title", descKey: "home.cap1Desc" },
+              { icon: Upload, titleKey: "home.cap2Title", descKey: "home.cap2Desc" },
+              { icon: Droplets, titleKey: "home.cap3Title", descKey: "home.cap3Desc" },
+              { icon: TrendingUp, titleKey: "home.cap4Title", descKey: "home.cap4Desc" },
+              { icon: BookOpen, titleKey: "home.cap5Title", descKey: "home.cap5Desc" },
+              { icon: Smartphone, titleKey: "home.cap6Title", descKey: "home.cap6Desc" },
             ].map((item, index) => {
               const Icon = item.icon
               return (
@@ -197,8 +200,8 @@ export default function HomePage({ onNavigate }: HomePageProps) {
                   className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-200 dark:border-gray-800"
                 >
                   <Icon className="w-8 h-8 text-green-600 dark:text-green-400 mb-3" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{t(item.titleKey)}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{t(item.descKey)}</p>
                 </motion.div>
               )
             })}
@@ -214,9 +217,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           viewport={{ once: true }}
           className="max-w-4xl mx-auto bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 rounded-2xl p-8 sm:p-12 text-center text-white shadow-2xl"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to Transform Your Farming?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t("home.ctaTitle")}</h2>
           <p className="text-base sm:text-lg mb-8 text-green-100">
-            Start using KrishiMitra AI today and experience the future of agriculture
+            {t("home.ctaDesc")}
           </p>
           <motion.button
             onClick={() => onNavigate("assistant")}
@@ -224,7 +227,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             whileTap={{ scale: 0.95 }}
             className="bg-white text-green-600 px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors min-h-[44px]"
           >
-            Launch Assistant
+            {t("home.ctaButton")}
           </motion.button>
         </motion.div>
       </section>

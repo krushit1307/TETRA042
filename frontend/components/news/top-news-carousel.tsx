@@ -1,10 +1,10 @@
 
 "use client"
 
-import { useRef, useEffect, useState } from "react"
 import { NewsArticle } from "@/lib/news-service"
-import { motion, useAnimation, useMotionValue } from "framer-motion"
+import { motion } from "framer-motion"
 import { Calendar, User } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface TopNewsCarouselProps {
     articles: NewsArticle[]
@@ -12,6 +12,7 @@ interface TopNewsCarouselProps {
 }
 
 export function TopNewsCarousel({ articles, onArticleClick }: TopNewsCarouselProps) {
+    const { t } = useLanguage()
     // Use the passed articles directly, duplication happens in render for the loop
     const displayArticles = articles;
 
@@ -20,7 +21,7 @@ export function TopNewsCarousel({ articles, onArticleClick }: TopNewsCarouselPro
             <div className="max-w-7xl mx-auto px-4 mb-4">
                 <h2 className="text-xl font-bold text-green-800 dark:text-green-400 flex items-center gap-2">
                     <span className="w-2 h-8 bg-green-600 rounded-full inline-block"></span>
-                    Top Stories
+                    {t("news.topStories")}
                 </h2>
             </div>
 
@@ -39,13 +40,13 @@ export function TopNewsCarousel({ articles, onArticleClick }: TopNewsCarouselPro
                     {/* Set 1 */}
                     <div className="flex gap-6 pr-6 shrink-0">
                         {displayArticles.map((article, idx) => (
-                            <NewsCard key={`set1-${article.id}-${idx}`} article={article} onClick={onArticleClick} />
+                            <NewsCard key={`set1-${article.id}-${idx}`} article={article} onClick={onArticleClick} t={t} />
                         ))}
                     </div>
                     {/* Set 2 - Duplicate for seamless loop */}
                     <div className="flex gap-6 pr-6 shrink-0">
                         {displayArticles.map((article, idx) => (
-                            <NewsCard key={`set2-${article.id}-${idx}`} article={article} onClick={onArticleClick} />
+                            <NewsCard key={`set2-${article.id}-${idx}`} article={article} onClick={onArticleClick} t={t} />
                         ))}
                     </div>
                 </motion.div>
@@ -56,7 +57,7 @@ export function TopNewsCarousel({ articles, onArticleClick }: TopNewsCarouselPro
 
 }
 
-function NewsCard({ article, onClick }: { article: NewsArticle; onClick: (article: NewsArticle) => void }) {
+function NewsCard({ article, onClick, t }: { article: NewsArticle; onClick: (article: NewsArticle) => void; t: (key: string) => string }) {
     return (
         <div
             onClick={() => onClick(article)}
@@ -75,7 +76,7 @@ function NewsCard({ article, onClick }: { article: NewsArticle; onClick: (articl
                     </div>
                 )}
                 <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded shadow">
-                    TOP NEWS
+                    {t("news.topNews")}
                 </div>
             </div>
             <div className="p-4">
@@ -89,7 +90,7 @@ function NewsCard({ article, onClick }: { article: NewsArticle; onClick: (articl
                     </span>
                     <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
-                        {article.author || 'Editor'}
+                        {article.author || t("news.editor")}
                     </span>
                 </div>
             </div>

@@ -1,8 +1,8 @@
 "use client"
 
 import type { CropEntry, Season } from "@/lib/crop-calendar/types"
-import { MONTH_NAMES } from "@/lib/crop-calendar/types"
 import { getActionsForMonth, formatDateRange, isWeedingAction } from "@/lib/crop-calendar/cropScheduleData"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface MonthActionSummaryProps {
     month: number
@@ -12,36 +12,43 @@ interface MonthActionSummaryProps {
     soil: string
 }
 
-function actionBadge(action: { crop: string; type: "sow" | "harvest" }) {
-    if (action.type === "harvest") {
-        return {
-            label: "🌾 Harvest",
-            className: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700",
-            aria: "Harvesting",
-        }
-    }
-    if (isWeedingAction(action.crop)) {
-        return {
-            label: "🌿 Weeding",
-            className: "bg-yellow-200 dark:bg-yellow-500/30 text-yellow-900 dark:text-yellow-100 border border-yellow-400 dark:border-yellow-500 font-semibold ring-1 ring-yellow-300/60",
-            aria: "Weeding",
-        }
-    }
-    return {
-        label: "🌱 Sow",
-        className: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700",
-        aria: "Sowing",
-    }
-}
+const MONTH_KEYS = [
+    "month.jan", "month.feb", "month.mar", "month.apr", "month.may", "month.jun",
+    "month.jul", "month.aug", "month.sep", "month.oct", "month.nov", "month.dec",
+] as const
 
 export function MonthActionSummary({ month, crops, seasonFilter, state, soil }: MonthActionSummaryProps) {
+    const { t } = useLanguage()
     const actions = getActionsForMonth(crops, month, seasonFilter)
+    const monthName = t(MONTH_KEYS[month - 1])
+
+    const actionBadge = (action: { crop: string; type: "sow" | "harvest" }) => {
+        if (action.type === "harvest") {
+            return {
+                label: `🌾 ${t("calendar.harvest")}`,
+                className: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700",
+                aria: t("calendar.harvesting"),
+            }
+        }
+        if (isWeedingAction(action.crop)) {
+            return {
+                label: `🌿 ${t("calendar.weeding")}`,
+                className: "bg-yellow-200 dark:bg-yellow-500/30 text-yellow-900 dark:text-yellow-100 border border-yellow-400 dark:border-yellow-500 font-semibold ring-1 ring-yellow-300/60",
+                aria: t("calendar.weeding"),
+            }
+        }
+        return {
+            label: `🌱 ${t("calendar.sow")}`,
+            className: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700",
+            aria: t("calendar.sowing"),
+        }
+    }
 
     if (actions.length === 0) {
         return (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 text-center shadow-sm">
                 <p className="text-gray-500 dark:text-gray-400 text-base">
-                    No major sowing or harvesting this month for <span className="font-medium text-gray-700 dark:text-gray-300">{state}</span> / <span className="font-medium text-gray-700 dark:text-gray-300">{soil}</span>.
+                    {t("calendar.noActions")} <span className="font-medium text-gray-700 dark:text-gray-300">{state}</span> / <span className="font-medium text-gray-700 dark:text-gray-300">{soil}</span>.
                 </p>
             </div>
         )
@@ -51,7 +58,7 @@ export function MonthActionSummary({ month, crops, seasonFilter, state, soil }: 
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md overflow-hidden">
             <div className="px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-slate-800/30">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
-                    This month&apos;s actions — {MONTH_NAMES[month - 1]}
+                    {t("calendar.monthActions")} {monthName}
                 </h3>
             </div>
             <ul className="divide-y divide-gray-100 dark:divide-gray-800" role="list">

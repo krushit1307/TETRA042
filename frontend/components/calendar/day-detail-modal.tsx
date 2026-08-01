@@ -1,7 +1,6 @@
 "use client"
 
 import type { CropEntry } from "@/lib/crop-calendar/types"
-import { MONTH_NAMES } from "@/lib/crop-calendar/types"
 import { formatDateRange, isWeedingAction, parseDateWindow } from "@/lib/crop-calendar/cropScheduleData"
 import {
     Dialog,
@@ -11,6 +10,7 @@ import {
     DialogDescription,
 } from "@/components/ui/dialog"
 import { Calendar, Sprout, Wheat, Shovel, Info } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface DayDetailModalProps {
     day: number | null
@@ -21,6 +21,11 @@ interface DayDetailModalProps {
     isOpen: boolean
     onClose: () => void
 }
+
+const MONTH_KEYS = [
+    "month.jan", "month.feb", "month.mar", "month.apr", "month.may", "month.jun",
+    "month.jul", "month.aug", "month.sep", "month.oct", "month.nov", "month.dec",
+] as const
 
 function cropBaseName(crop: string): string {
     return crop.split(" — ")[0]
@@ -37,50 +42,6 @@ function getMainEntry(allCrops: CropEntry[], entry: CropEntry): CropEntry {
     return allCrops.find((c) => c.crop === base) ?? entry
 }
 
-function getTodayActionLabel(entry: CropEntry, isHarvest: boolean): string {
-    if (isHarvest) return "Harvesting"
-    if (isWeedingAction(entry.crop)) {
-        const suffix = entry.crop.split(" — ")[1]
-        return suffix || "Weeding"
-    }
-    if (entry.crop.includes(" — ")) {
-        return entry.crop.split(" — ")[1]
-    }
-    return "Sowing"
-}
-
-function actionStyle(type: "sow" | "harvest" | "weeding" | "operation") {
-    switch (type) {
-        case "harvest":
-            return {
-                badge: "🌾 Harvest",
-                className: "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700",
-            }
-        case "weeding":
-            return {
-                badge: "🌿 Weeding",
-                className: "bg-yellow-200 dark:bg-yellow-500/30 text-yellow-900 dark:text-yellow-100 border-yellow-400 dark:border-yellow-500",
-            }
-        case "sow":
-            return {
-                badge: "🌱 Sow",
-                className: "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 border-green-300 dark:border-green-700",
-            }
-        default:
-            return {
-                badge: "📋 Field work",
-                className: "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700",
-            }
-    }
-}
-
-function classifyEntry(entry: CropEntry, harvestToday: CropEntry[]): "sow" | "harvest" | "weeding" | "operation" {
-    if (harvestToday.some((h) => h.crop === entry.crop)) return "harvest"
-    if (isWeedingAction(entry.crop)) return "weeding"
-    if (!entry.crop.includes(" — ")) return "sow"
-    return "operation"
-}
-
 export function DayDetailModal({
     day,
     month,
@@ -90,10 +51,56 @@ export function DayDetailModal({
     isOpen,
     onClose,
 }: DayDetailModalProps) {
+    const { t } = useLanguage()
+
     if (day === null) return null
 
     const allToday = [...sowToday, ...harvestToday]
-    const monthName = MONTH_NAMES[month - 1]
+    const monthName = t(MONTH_KEYS[month - 1])
+
+    const getTodayActionLabel = (entry: CropEntry, isHarvest: boolean): string => {
+        if (isHarvest) return t("calendar.harvesting")
+        if (isWeedingAction(entry.crop)) {
+            const suffix = entry.crop.split(" — ")[1]
+            return suffix || t("calendar.weeding")
+        }
+        if (entry.crop.includes(" — ")) {
+            return entry.crop.split(" — ")[1]
+        }
+        return t("calendar.sowing")
+    }
+
+    const actionStyle = (type: "sow" | "harvest" | "weeding" | "operation") => {
+        switch (type) {
+            case "harvest":
+                return {
+                    badge: `🌾 ${t("calendar.harvest")}`,
+                    className: "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700",
+                }
+            case "weeding":
+                return {
+                    badge: `🌿 ${t("calendar.weeding")}`,
+                    className: "bg-yellow-200 dark:bg-yellow-500/30 text-yellow-900 dark:text-yellow-100 border-yellow-400 dark:border-yellow-500",
+                }
+            case "sow":
+                return {
+                    badge: `🌱 ${t("calendar.sow")}`,
+                    className: "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 border-green-300 dark:border-green-700",
+                }
+            default:
+                return {
+                    badge: `📋 ${t("calendar.fieldWork")}`,
+                    className: "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700",
+                }
+        }
+    }
+
+    const classifyEntry = (entry: CropEntry, harvestList: CropEntry[]): "sow" | "harvest" | "weeding" | "operation" => {
+        if (harvestList.some((h) => h.crop === entry.crop)) return "harvest"
+        if (isWeedingAction(entry.crop)) return "weeding"
+        if (!entry.crop.includes(" — ")) return "sow"
+        return "operation"
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -105,16 +112,16 @@ export function DayDetailModal({
                     </DialogTitle>
                     <DialogDescription className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
                         {allToday.length > 0
-                            ? `${allToday.length} farm ${allToday.length === 1 ? "activity" : "activities"} scheduled for this day`
-                            : "No sowing or harvesting activities on this day"}
+                            ? `${allToday.length} ${t("calendar.dayActivities")}`
+                            : t("calendar.noDayActivities")}
                     </DialogDescription>
                 </DialogHeader>
 
                 {allToday.length === 0 ? (
                     <div className="py-8 text-center text-gray-500 dark:text-gray-400 text-base">
                         <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                        <p>No crop actions for {monthName} {day}.</p>
-                        <p className="text-sm mt-1">Try another day or change state/soil filters.</p>
+                        <p>{t("calendar.noCropActions")} {monthName} {day}.</p>
+                        <p className="text-sm mt-1">{t("calendar.tryAnotherDay")}</p>
                     </div>
                 ) : (
                     <ul className="space-y-4 mt-2" role="list">
@@ -138,7 +145,7 @@ export function DayDetailModal({
                                                 {cropBaseName(entry.crop)}
                                             </h4>
                                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                                                {entry.season} season
+                                                {entry.season} {t("calendar.seasonSuffix")}
                                             </p>
                                         </div>
                                         <span
@@ -157,19 +164,19 @@ export function DayDetailModal({
                                             ) : (
                                                 <Sprout className="w-4 h-4" />
                                             )}
-                                            Today: {todayLabel}
+                                            {t("calendar.today")} {todayLabel}
                                         </p>
 
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm sm:text-base">
                                             {sowWindow && (
                                                 <div className="flex items-start gap-2">
-                                                    <span className="text-green-600 dark:text-green-400 font-medium whitespace-nowrap">🌱 Sow:</span>
+                                                    <span className="text-green-600 dark:text-green-400 font-medium whitespace-nowrap">🌱 {t("calendar.sow")}:</span>
                                                     <span className="text-gray-700 dark:text-gray-300">{sowWindow}</span>
                                                 </div>
                                             )}
                                             {harvestWindow && (
                                                 <div className="flex items-start gap-2">
-                                                    <span className="text-amber-600 dark:text-amber-400 font-medium whitespace-nowrap">🌾 Harvest:</span>
+                                                    <span className="text-amber-600 dark:text-amber-400 font-medium whitespace-nowrap">🌾 {t("calendar.harvest")}:</span>
                                                     <span className="text-gray-700 dark:text-gray-300">{harvestWindow}</span>
                                                 </div>
                                             )}

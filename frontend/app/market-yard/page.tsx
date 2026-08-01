@@ -9,12 +9,14 @@ import CommodityGrid from "@/components/market/commodity-grid"
 import CropPriceDetails from "@/components/market/crop-price-details"
 import WelcomeCard from "@/components/market/welcome-card"
 import { getCropsForMarket, getPriceForCrop, getAllPricesForMarket, type MarketPrice } from "@/lib/market-api"
-import { LANGUAGES, t } from "@/lib/translations"
+import { t } from "@/lib/translations"
+import { useLanguage } from "@/lib/i18n/language-context"
+import type { SupportedLanguage } from "@/lib/i18n/languages"
 import { Loader2 } from "lucide-react"
 
 export default function MarketYardPage() {
     const router = useRouter()
-    const [selectedLanguage, setSelectedLanguage] = useState('en') // Default to English as per request
+    const { language, setLanguage } = useLanguage()
     const [selectedState, setSelectedState] = useState('') // Default to Empty
     const [selectedDistrict, setSelectedDistrict] = useState('')
     const [selectedMarket, setSelectedMarket] = useState('')
@@ -132,7 +134,7 @@ export default function MarketYardPage() {
                         selectedDistrict={selectedDistrict}
                         selectedMarket={selectedMarket}
                         searchTerm={searchTerm}
-                        selectedLanguage={selectedLanguage}
+                        selectedLanguage={language}
                         onStateChange={(state) => {
                             setSelectedState(state)
                             setSelectedDistrict('')
@@ -144,7 +146,7 @@ export default function MarketYardPage() {
                         }}
                         onMarketChange={setSelectedMarket}
                         onSearchChange={setSearchTerm}
-                        onLanguageChange={setSelectedLanguage}
+                        onLanguageChange={(lang) => setLanguage(lang as SupportedLanguage)}
                     />
                 </div>
 
@@ -154,7 +156,7 @@ export default function MarketYardPage() {
                         {selectedCropPrice ? (
                             <CropPriceDetails
                                 price={selectedCropPrice}
-                                selectedLanguage={selectedLanguage}
+                                selectedLanguage={language}
                                 onBack={handleBackToGrid}
                             />
                         ) : selectedCrop ? (
@@ -176,7 +178,7 @@ export default function MarketYardPage() {
                                     onClick={handleBackToGrid}
                                     className="text-sm text-green-600 hover:text-green-700 font-medium"
                                 >
-                                    {t('selectAnotherCrop', selectedLanguage)}
+                                    {t('selectAnotherCrop', language)}
                                 </button>
                             </div>
                         ) : (
@@ -185,7 +187,7 @@ export default function MarketYardPage() {
                                 <MarketStats
                                     prices={marketPrices}
                                     loading={isLoadingPrices && marketPrices.length === 0}
-                                    selectedLanguage={selectedLanguage}
+                                    selectedLanguage={language}
                                 />
                             ) : (
                                 <div className="w-full bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 p-12 text-center animate-in fade-in zoom-in-95 duration-500">
@@ -193,7 +195,7 @@ export default function MarketYardPage() {
                                         <span className="text-4xl text-green-600 dark:text-green-400">📉</span>
                                     </div>
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                                        {t('noDataAvailable', selectedLanguage)}
+                                        {t('noDataAvailable', language)}
                                     </h3>
                                     <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto text-sm">
                                         {/* We can leave this empty or add a generic 'Please try another market' if needed */}
@@ -207,13 +209,13 @@ export default function MarketYardPage() {
                             crops={filteredCrops}
                             selectedCrop={selectedCrop}
                             onSelectCrop={handleCropSelect}
-                            selectedLanguage={selectedLanguage}
+                            selectedLanguage={language}
                             loading={isLoadingCrops}
                         />
                     </div>
                 ) : (
                     /* Empty State / Prompt */
-                    <WelcomeCard selectedLanguage={selectedLanguage} />
+                    <WelcomeCard selectedLanguage={language} />
                 )}
             </main>
         </div>

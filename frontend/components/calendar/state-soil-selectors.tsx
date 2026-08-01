@@ -3,6 +3,7 @@
 import { STATES, getSoilsForState } from "@/lib/crop-calendar/cropCalendarData"
 import type { SoilType } from "@/lib/crop-calendar/types"
 import { MapPin, Layers } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface StateSoilSelectorsProps {
     state: string
@@ -19,6 +20,7 @@ export function StateSoilSelectors({
     onSoilChange,
     isDetecting,
 }: StateSoilSelectorsProps) {
+    const { t } = useLanguage()
     const soilOptions = getSoilsForState(state)
 
     return (
@@ -26,9 +28,9 @@ export function StateSoilSelectors({
             <div>
                 <label htmlFor="cropcal-state" className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     <MapPin className="w-4 h-4 text-green-600" aria-hidden="true" />
-                    State / UT
+                    {t("calendar.stateLabel")}
                     {isDetecting && (
-                        <span className="text-xs text-gray-400 font-normal ml-1">(detecting…)</span>
+                        <span className="text-xs text-gray-400 font-normal ml-1">{t("calendar.detectingState")}</span>
                     )}
                 </label>
                 <select
@@ -47,7 +49,7 @@ export function StateSoilSelectors({
             <div>
                 <label htmlFor="cropcal-soil" className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     <Layers className="w-4 h-4 text-green-600" aria-hidden="true" />
-                    Soil Type
+                    {t("calendar.soilLabel")}
                 </label>
                 <select
                     id="cropcal-soil"

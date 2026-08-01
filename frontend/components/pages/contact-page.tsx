@@ -5,8 +5,10 @@ import type React from "react"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Mail, Phone, MapPin, Send } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 export default function ContactPage() {
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -51,7 +53,7 @@ export default function ContactPage() {
           },
           (error) => {
             console.error("Email sending failed:", error.text)
-            alert("Failed to send email. Please try again.")
+            alert(t("contact.emailFailed"))
             setSubmitted(false)
           },
         )
@@ -63,9 +65,9 @@ export default function ContactPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 px-4">Get in Touch</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 px-4">{t("contact.title")}</h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
-            Have questions or feedback? We'd love to hear from you
+            {t("contact.subtitle")}
           </p>
         </motion.div>
 
@@ -74,19 +76,19 @@ export default function ContactPage() {
           {[
             {
               icon: Mail,
-              title: "Email",
+              title: t("contact.email"),
               value: "sasyaaihelp@gmail.com",
               link: "mailto:sasyaaihelp@gmail.com",
             },
             {
               icon: Phone,
-              title: "Phone",
+              title: t("contact.phone"),
               value: "+91-9313198911",
               link: "tel:+91-9313198911",
             },
             {
               icon: MapPin,
-              title: "Location",
+              title: t("contact.location"),
               value: "Vadodara, Gujarat, India",
               link: "https://share.google/qn53yJiZzkKPqCRuR",
             },
@@ -117,7 +119,7 @@ export default function ContactPage() {
           viewport={{ once: true }}
           className="max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200 dark:border-gray-800"
         >
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">Send us a Message</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">{t("contact.sendMessage")}</h2>
 
           {submitted ? (
             <motion.div
@@ -135,9 +137,9 @@ export default function ContactPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Thank you!</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t("contact.thankYou")}</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                We've received your message and will get back to you soon.
+                {t("contact.thankYouDesc")}
               </p>
             </motion.div>
           ) : (
@@ -146,7 +148,7 @@ export default function ContactPage() {
                 <input
                   type="text"
                   name="name"
-                  placeholder="Your Name"
+                  placeholder={t("contact.namePlaceholder")}
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -155,7 +157,7 @@ export default function ContactPage() {
                 <input
                   type="email"
                   name="email"
-                  placeholder="Your Email"
+                  placeholder={t("contact.emailPlaceholder")}
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -166,7 +168,7 @@ export default function ContactPage() {
               <input
                 type="text"
                 name="subject"
-                placeholder="Subject"
+                placeholder={t("contact.subjectPlaceholder")}
                 value={formData.subject}
                 onChange={handleChange}
                 required
@@ -175,7 +177,7 @@ export default function ContactPage() {
 
               <textarea
                 name="message"
-                placeholder="Your Message"
+                placeholder={t("contact.messagePlaceholder")}
                 value={formData.message}
                 onChange={handleChange}
                 required
@@ -190,7 +192,7 @@ export default function ContactPage() {
                 className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all min-h-[44px]"
               >
                 <Send className="w-5 h-5" />
-                Send Message
+                {t("contact.sendButton")}
               </motion.button>
             </form>
           )}

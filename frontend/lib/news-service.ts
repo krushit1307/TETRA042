@@ -17,29 +17,18 @@ export interface NewsArticle {
 }
 
 export type SupportedLanguage =
-    | 'en' // English
-    | 'hi' // Hindi
-    | 'gu' // Gujarati
-    | 'mr' // Marathi
-    | 'pa' // Punjabi
-    | 'ta' // Tamil
-    | 'te' // Telugu
-    | 'kn' // Kannada
-    | 'bn' // Bengali
-    | 'or' // Odia
+    | 'en'
+    | 'gu'
+    | 'hi'
+    | 'mr'
+    | 'pa'
+    | 'ta'
+    | 'te'
+    | 'kn'
+    | 'bn'
+    | 'or'
 
-export const LANGUAGES: { code: SupportedLanguage; name: string; localName: string }[] = [
-    { code: 'en', name: 'English', localName: 'English' },
-    { code: 'gu', name: 'Gujarati', localName: 'ગુજરાતી' },
-    { code: 'hi', name: 'Hindi', localName: 'हिन्दी' },
-    { code: 'mr', name: 'Marathi', localName: 'मराठी' },
-    { code: 'pa', name: 'Punjabi', localName: 'ਪੰਜਾਬੀ' },
-    { code: 'ta', name: 'Tamil', localName: 'தமிழ்' },
-    { code: 'te', name: 'Telugu', localName: 'తెలుగు' },
-    { code: 'kn', name: 'Kannada', localName: 'ಕನ್ನಡ' },
-    { code: 'bn', name: 'Bengali', localName: 'বাংলা' },
-    { code: 'or', name: 'Odia', localName: 'ଓଡ଼ିଆ' },
-]
+export { LANGUAGES } from '@/lib/i18n/languages'
 
 // --- UI TRANSLATIONS ---
 export const UI_TRANSLATIONS: Record<SupportedLanguage, { readMore: string; readFull: string; share: string; close: string; loading: string; noNews: string }> = {

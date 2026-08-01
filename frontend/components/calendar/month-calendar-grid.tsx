@@ -2,10 +2,11 @@
 
 import { useState } from "react"
 import type { CropEntry, Season } from "@/lib/crop-calendar/types"
-import { DAYS_IN_MONTH, MONTH_NAMES, WEEKDAY_HEADERS } from "@/lib/crop-calendar/types"
+import { DAYS_IN_MONTH } from "@/lib/crop-calendar/types"
 import { getDayActions, getFirstDayOffset, isWeedingAction } from "@/lib/crop-calendar/cropScheduleData"
 import { DayDetailModal } from "@/components/calendar/day-detail-modal"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface MonthCalendarGridProps {
     month: number
@@ -13,6 +14,15 @@ interface MonthCalendarGridProps {
     seasonFilter: Season | "All"
     onMonthChange: (month: number) => void
 }
+
+const MONTH_KEYS = [
+    "month.jan", "month.feb", "month.mar", "month.apr", "month.may", "month.jun",
+    "month.jul", "month.aug", "month.sep", "month.oct", "month.nov", "month.dec",
+] as const
+
+const WEEKDAY_KEYS = [
+    "week.sun", "week.mon", "week.tue", "week.wed", "week.thu", "week.fri", "week.sat",
+] as const
 
 const MAX_VISIBLE_CHIPS = 2
 
@@ -26,11 +36,13 @@ function chipLabel(crop: string): string {
 }
 
 export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }: MonthCalendarGridProps) {
+    const { t } = useLanguage()
     const [selectedDay, setSelectedDay] = useState<number | null>(null)
     const [modalOpen, setModalOpen] = useState(false)
     const daysInMonth = DAYS_IN_MONTH[month - 1]
     const firstOffset = getFirstDayOffset()
     const totalCells = Math.ceil((daysInMonth + firstOffset) / 7) * 7
+    const monthName = t(MONTH_KEYS[month - 1])
 
     const prevMonth = () => onMonthChange(month === 1 ? 12 : month - 1)
     const nextMonth = () => onMonthChange(month === 12 ? 1 : month + 1)
@@ -55,28 +67,28 @@ export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }:
                 <div className="flex items-center justify-between px-4 sm:px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-800 border-b border-gray-200 dark:border-gray-700">
                     <button
                         onClick={prevMonth}
-                        aria-label="Previous month"
+                        aria-label={t("calendar.prev")}
                         className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-green-300 dark:hover:border-green-700 transition-all"
                     >
-                        <ChevronLeft className="w-4 h-4" /> Prev
+                        <ChevronLeft className="w-4 h-4" /> {t("calendar.prev")}
                     </button>
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white" aria-live="polite">
-                        {MONTH_NAMES[month - 1]}
+                        {monthName}
                     </h2>
                     <button
                         onClick={nextMonth}
-                        aria-label="Next month"
+                        aria-label={t("calendar.next")}
                         className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-green-300 dark:hover:border-green-700 transition-all"
                     >
-                        Next <ChevronRight className="w-4 h-4" />
+                        {t("calendar.next")} <ChevronRight className="w-4 h-4" />
                     </button>
                 </div>
 
                 {/* Weekday headers */}
                 <div className="grid grid-cols-7 gap-1.5 sm:gap-2 px-2 sm:px-3 pt-3" role="row">
-                    {WEEKDAY_HEADERS.map((day, idx) => (
+                    {WEEKDAY_KEYS.map((key, idx) => (
                         <div
-                            key={day}
+                            key={key}
                             role="columnheader"
                             className={`py-3 text-center text-sm sm:text-base font-bold uppercase tracking-wider rounded-lg ${
                                 idx === 0
@@ -84,7 +96,7 @@ export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }:
                                     : "text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800/60"
                             }`}
                         >
-                            {day}
+                            {t(key)}
                         </div>
                     ))}
                 </div>
@@ -93,7 +105,7 @@ export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }:
                 <div
                     className="grid grid-cols-7 gap-1.5 sm:gap-2 p-2 sm:p-3"
                     role="grid"
-                    aria-label={`Crop calendar for ${MONTH_NAMES[month - 1]}`}
+                    aria-label={`Crop calendar for ${monthName}`}
                 >
                     {Array.from({ length: totalCells }, (_, i) => {
                         const dayNum = i - firstOffset + 1
@@ -122,7 +134,7 @@ export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }:
                                 key={dayNum}
                                 type="button"
                                 role="gridcell"
-                                aria-label={`${MONTH_NAMES[month - 1]} ${dayNum}${hasActivity ? `, ${totalChips} activities` : ""}`}
+                                aria-label={`${monthName} ${dayNum}${hasActivity ? `, ${totalChips} ${t("calendar.activities")}` : ""}`}
                                 onClick={() => openDay(dayNum)}
                                 className={`min-h-[120px] sm:min-h-[150px] rounded-xl border-2 flex flex-col transition-all duration-200 text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1 ${
                                     isSelected
@@ -177,7 +189,7 @@ export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }:
                                     ))}
                                     {hiddenCount > 0 && (
                                         <span className="text-sm sm:text-base text-green-700 dark:text-green-400 font-bold mt-auto">
-                                            +{hiddenCount} more
+                                            +{hiddenCount} {t("calendar.more")}
                                         </span>
                                     )}
                                 </div>

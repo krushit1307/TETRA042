@@ -302,16 +302,30 @@ function buildOperationEntries(
     template: CropTemplate,
     sowStart: string,
     sowShift: number,
-    compact = false,
+    compact = true,
 ): CropEntry[] {
     const key = matchCropKey(template.crop)
     if (!key) return []
 
     const ops = CROP_OPERATIONS[key]
     const entries: CropEntry[] = []
+    let weedingAdded = false
+    let harvestCareAdded = false
 
     for (const op of ops) {
-        if (compact && !/weeding/i.test(op.suffix)) continue
+        if (compact) {
+            const isWeeding = /weeding/i.test(op.suffix)
+            const isHarvestCare = op.slot === "harvest" && /irrigation/i.test(op.suffix)
+            if (!isWeeding && !isHarvestCare) continue
+            if (isWeeding) {
+                if (weedingAdded) continue
+                weedingAdded = true
+            }
+            if (isHarvestCare) {
+                if (harvestCareAdded) continue
+                harvestCareAdded = true
+            }
+        }
 
         const shiftedSowStart = shiftWindow(sowStart, sowStart, sowShift).start
         const win = dasWindow(shiftedSowStart, op.dasFrom, op.dasTo)
@@ -342,9 +356,10 @@ function buildOperationEntries(
     return entries
 }
 
-function expandCrop(template: CropTemplate, sowShift: number, harvestShift: number, compact = false): CropEntry[] {
-    const sow = shiftWindow(template.sowStart, template.sowEnd, sowShift)
-    const harvest = shiftWindow(template.harvestStart, template.harvestEnd, harvestShift)
+function expandCrop(template: CropTemplate, sowShift: number, harvestShift: number, compact = true): CropEntry[] {
+    const spread = compact ? cropOperationStagger(template.crop) : 0
+    const sow = shiftWindow(template.sowStart, template.sowEnd, sowShift + spread)
+    const harvest = shiftWindow(template.harvestStart, template.harvestEnd, harvestShift + spread)
 
     const main: CropEntry = {
         crop: template.crop,
@@ -356,7 +371,7 @@ function expandCrop(template: CropTemplate, sowShift: number, harvestShift: numb
         note: template.note,
     }
 
-    const operations = buildOperationEntries(template, template.sowStart, sowShift, compact)
+    const operations = buildOperationEntries(template, template.sowStart, sowShift + spread, compact)
     return [main, ...operations]
 }
 
@@ -390,8 +405,33 @@ const STATE_SOIL_CROP_OVERRIDE: Record<string, Record<string, string[]>> = {
     },
 }
 
+/** Max distinct base crops per schedule — keeps the calendar readable (~3 tasks/day avg) */
+const MAX_BASE_CROPS_PER_SCHEDULE = 7
+
+/** Spread field operations across the week so multiple crops don't pile onto one day */
+function cropOperationStagger(cropName: string): number {
+    let hash = 0
+    for (let i = 0; i < cropName.length; i++) hash += cropName.charCodeAt(i)
+    return (hash % 7) - 3
+}
+
 function cropBaseName(crop: string): string {
     return crop.split(" — ")[0]
+}
+
+function limitScheduleDensity(crops: CropEntry[], maxBaseCrops = MAX_BASE_CROPS_PER_SCHEDULE): CropEntry[] {
+    const allowedBases = new Set<string>()
+
+    for (const entry of crops) {
+        const base = cropBaseName(entry.crop)
+        if (!allowedBases.has(base)) {
+            if (allowedBases.size >= maxBaseCrops) continue
+            allowedBases.add(base)
+        }
+    }
+
+    if (allowedBases.size === 0) return crops
+    return crops.filter((c) => allowedBases.has(cropBaseName(c.crop)))
 }
 
 function cropMatchesAllowlist(entry: CropEntry, allowlist: string[]): boolean {
@@ -436,7 +476,6 @@ function buildCropList(state: string, soil: SoilType, regions: string[]): CropEn
     const isMountainRegion = regions.includes("mountain")
     const isMountainSoil = cat === "mountain"
     const soilShift = soilDateShift(cat)
-    const isCompact = cat === "black"
 
     const crops: CropEntry[] = []
 
@@ -465,11 +504,12 @@ function buildCropList(state: string, soil: SoilType, regions: string[]): CropEn
             harvestShift += 14
         }
 
-        crops.push(...expandCrop(template, sowShift, harvestShift, isCompact))
+        crops.push(...expandCrop(template, sowShift, harvestShift, true))
     }
 
     const bySoil = filterBySoilCategory(crops, cat)
-    return applyStateSoilOverride(bySoil, state, soil)
+    const overridden = applyStateSoilOverride(bySoil, state, soil)
+    return limitScheduleDensity(overridden)
 }
 
 function generateSchedule(): Record<string, Record<string, CropEntry[]>> {
