@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import Navbar from "@/components/navbar"
 import { NewsCard } from "@/components/news/news-card"
-import { NewsFilter } from "@/components/news/news-filter"
 import { NewsDetailModal } from "@/components/news/news-detail-modal"
 import { fetchAgricultureNews, NewsArticle } from "@/lib/news-service"
 import { AlertCircle, RefreshCw } from "lucide-react"
@@ -16,7 +15,7 @@ import { TopNewsCarousel } from "@/components/news/top-news-carousel"
 
 export default function NewsPage() {
     const router = useRouter()
-    const { language, setLanguage, t } = useLanguage()
+    const { language, t } = useLanguage()
     const [news, setNews] = useState<NewsArticle[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -75,20 +74,13 @@ export default function NewsPage() {
             {/* Header */}
             <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-gray-800 sticky top-16 z-30 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                                {t("news.title")}
-                            </h1>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                {t("news.subtitle")}
-                            </p>
-                        </div>
-                        <NewsFilter
-                            currentLanguage={language}
-                            onLanguageChange={setLanguage}
-                            disabled={loading}
-                        />
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                            {t("news.title")}
+                        </h1>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {t("news.subtitle")}
+                        </p>
                     </div>
                 </div>
             </div>

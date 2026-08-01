@@ -1,6 +1,7 @@
 "use client"
 
 import { STATES, getSoilsForState } from "@/lib/crop-calendar/cropCalendarData"
+import { translateSoil, translateState } from "@/lib/crop-calendar/location-i18n"
 import type { SoilType } from "@/lib/crop-calendar/types"
 import { MapPin, Layers } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
@@ -41,7 +42,7 @@ export function StateSoilSelectors({
                     className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none transition-all text-sm"
                 >
                     {STATES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
+                        <option key={s} value={s}>{translateState(s, t)}</option>
                     ))}
                 </select>
             </div>
@@ -59,7 +60,7 @@ export function StateSoilSelectors({
                     className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 outline-none transition-all text-sm"
                 >
                     {soilOptions.map((s: SoilType) => (
-                        <option key={s} value={s}>{s}</option>
+                        <option key={s} value={s}>{translateSoil(s, t)}</option>
                     ))}
                 </select>
             </div>

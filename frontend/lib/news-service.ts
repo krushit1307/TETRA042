@@ -144,7 +144,12 @@ export async function fetchAgricultureNews(language: SupportedLanguage): Promise
             processedIds.add(mockItem.id as string)
 
             if (storedItem) {
-                mergedNews.push(storedToArticle(storedItem))
+                const article = storedToArticle(storedItem)
+                // Prefer master image unless admin uploaded a custom image
+                if (mockItem.urlToImage && !storedItem.image_url?.startsWith("data:")) {
+                    article.urlToImage = mockItem.urlToImage
+                }
+                mergedNews.push(article)
             } else {
                 mergedNews.push(mockItem)
             }
@@ -501,6 +506,258 @@ const MASTER_NEWS_DATA = [
             kn: { title: "ಭಾರತ-ಅಮೇರಿಕಾ ವ್ಯಾಪಾರ ಒಪ್ಪಂದಕ್ಕೆ ರೈತರ ವಿರೋಧ", content: "ಹೆಚ್ಚು ರಕ್ಷಣೆಯ ಬೇಡಿಕೆ." },
             bn: { title: "ভারত-আমেরিকা চুক্তির বিরোধিতা কৃষকদের", content: "অধিক সুরক্ষার দাবি." },
             or: { title: "ଭାରତ-ଆମେରିକା ଚୁକ୍ତିକୁ ଚାଷୀଙ୍କ ବିରୋଧ", content: "ଅଧିକ ସୁରକ୍ଷା ଦାବି।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000011",
+        publisher: "The Indian Express",
+        author: "Policy Desk",
+        date: "2026-06-20T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&q=80&w=800",
+        link: "https://indianexpress.com/article/india/cabinet-approves-extension-of-pm-kisan-for-5-years-10812821/",
+        is_top: true,
+        translations: {
+            en: { title: "Cabinet Approves PM-KISAN Extension for Five More Years", content: "The Union Cabinet approved continuation of PM-KISAN from 2026-27 to 2030-31 with a financial outlay of Rs 3.15 lakh crore. Over Rs 4.47 lakh crore has already been transferred to farmers through 23 instalments, benefiting more than 9.49 crore farmer families via Direct Benefit Transfer." },
+            hi: { title: "कैबिनेट ने PM-KISAN को 5 साल और बढ़ाया", content: "2026-27 से 2030-31 तक योजना जारी, 3.15 लाख करोड़ रुपये का बजट। 23 किस्तों में 9.49 करोड़ से अधिक किसान परिवारों को लाभ।" },
+            gu: { title: "કેબિનેટે PM-KISAN 5 વર્ષ માટે લંબાવ્યું", content: "2026-27 થી 2030-31 સુધી યોજના, 3.15 લાખ કરોડ રૂપિયાનું બજેટ. 23 હપ્તામાં 9.49 કરોડથી વધુ ખેડૂત પરિવારોને લાભ." },
+            mr: { title: "कॅबिनेटने PM-KISAN 5 वर्षांसाठी वाढवले", content: "2026-27 ते 2030-31 पर्यंत योजना सुरू, 3.15 लाख कोटी निधी. 23 हप्त्यांत 9.49 कोटीहून अधिक शेतकरी कुटुंबांना लाभ." },
+            pa: { title: "ਕੈਬਿਨੇਟ ਨੇ PM-KISAN 5 ਸਾਲ ਲਈ ਵਧਾਇਆ", content: "2026-27 ਤੋਂ 2030-31 ਤੱਕ ਯੋਜਨਾ, 3.15 ਲੱਖ ਕਰੋੜ ਰੁਪਏ ਦਾ ਬਜਟ। 23 ਕਿਸਤਾਂ ਵਿੱਚ 9.49 ਕਰੋੜ ਤੋਂ ਵੱਧ ਕਿਸਾਨ ਪਰਿਵਾਰਾਂ ਨੂੰ ਲਾਭ।" },
+            ta: { title: "அமைச்சரவை PM-KISAN ஐ 5 ஆண்டுகள் நீட்டித்தது", content: "2026-27 முதல் 2030-31 வரை திட்டம், ரூ.3.15 லட்சம் கோடி நிதி. 23 தவணைகளில் 9.49 கோடிக்கும் மேற்பட்ட விவசாயிகள் பயனடைந்தனர்." },
+            te: { title: "క్యాబినెట్ PM-KISANను 5 సంవత్సరాలు పొడిగించింది", content: "2026-27 నుండి 2030-31 వరకు పథకం, రూ.3.15 లక్షల కోట్ల బడ్జెట్. 23 వాయిదాలలో 9.49 కోట్లకు పైగా రైతు కుటుంబాలకు లాభం." },
+            kn: { title: "ಕ್ಯಾಬಿನೆಟ್ PM-KISAN ಅನ್ನು 5 ವರ್ಷಗಳಿಗೆ ವಿಸ್ತರಿಸಿದೆ", content: "2026-27 ರಿಂದ 2030-31 ವರೆಗೆ ಯೋಜನೆ, ರೂ.3.15 ಲಕ್ಷ ಕೋಟಿ ಬಜೆಟ್. 23 ಕಿಸ್ತಿಗಳಲ್ಲಿ 9.49 ಕೋಟಿಗೂ ಹೆಚ್ಚು ರೈತ ಕುಟುಂಬಗಳಿಗೆ ಲಾಭ." },
+            bn: { title: "মন্ত্রিসভা PM-KISAN 5 বছর বাড়িয়েছে", content: "২০২৬-২৭ থেকে ২০৩০-৩১ পর্যন্ত প্রকল্প, ৩.১৫ লাখ কোটি টাকা বাজেট। ২৩ কিস্তিতে ৯.৪৯ কোটির বেশি কৃষক পরিবার উপকৃত।" },
+            or: { title: "କ୍ୟାବିନେଟ୍ PM-KISAN 5 ବର୍ଷ ବଢ଼ାଇଲା", content: "2026-27 ରୁ 2030-31 ପର୍ଯ୍ୟନ୍ତ ଯୋଜନା, 3.15 ଲକ୍ଷ କୋଟି ବଜେଟ। 23 କିସ୍ତିରେ 9.49 କୋଟିରୁ ଅଧିକ ଚାଷୀ ପରିବାର ଉପକୃତ।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000012",
+        publisher: "Press Information Bureau",
+        author: "Government of India",
+        date: "2026-06-20T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&q=80&w=800",
+        link: "https://pmkisan.gov.in/",
+        is_top: true,
+        translations: {
+            en: { title: "PM Releases 23rd PM-KISAN Instalment to Farmers", content: "The Prime Minister released the 23rd instalment of PM-KISAN from West Bengal, transferring Rs 18,984 crore to more than 9.49 crore farmers. The scheme provides Rs 6,000 per year in three equal instalments of Rs 2,000 through DBT." },
+            hi: { title: "PM ने 23वीं PM-KISAN किस्त जारी की", content: "पश्चिम बंगाल से 18,984 करोड़ रुपये 9.49 करोड़ किसानों के खातों में ट्रांसफर। प्रति वर्ष 6,000 रुपये की आय सहायता।" },
+            gu: { title: "PMએ 23મી PM-KISAN હપ્તો જારી કર્યો", content: "પશ્ચિમ બંગાળથી 18,984 કરોડ રૂપિયા 9.49 કરોડ ખેડૂતોને ટ્રાન્સફર. વાર્ષિક 6,000 રૂપિયાની આવક સહાય." },
+            mr: { title: "पंतप्रधानांनी 23वा PM-KISAN हप्ता जारी केला", content: "पश्चिम बंगालमधून 18,984 कोटी रुपये 9.49 कोटी शेतकऱ्यांना हस्तांतरित. दरवर्षी 6,000 रुपये उत्पन्न सहाय्य." },
+            pa: { title: "PM ਨੇ 23ਵੀਂ PM-KISAN ਕਿਸਤ ਜਾਰੀ ਕੀਤੀ", content: "ਪੱਛਮੀ ਬੰਗਾਲ ਤੋਂ 18,984 ਕਰੋੜ ਰੁਪਏ 9.49 ਕਰੋੜ ਕਿਸਾਨਾਂ ਨੂੰ ਟ੍ਰਾਂਸਫਰ। ਸਾਲਾਨਾ 6,000 ਰੁਪਏ ਆਮਦਨ ਸਹਾਇਤਾ।" },
+            ta: { title: "PM 23வது PM-KISAN தவணையை வெளியிட்டார்", content: "மேற்கு வங்கத்திலிருந்து ரூ.18,984 கோடி 9.49 கோடி விவசாயிகளுக்கு. ஆண்டுக்கு ரூ.6,000 வருமான உதவி." },
+            te: { title: "PM 23వ PM-KISAN వాయిదా విడుదల చేశారు", content: "పశ్చిమ బెంగాల్ నుండి రూ.18,984 కోట్లు 9.49 కోట్ల రైతులకు. సంవత్సరానికి రూ.6,000 ఆదాయ సహాయం." },
+            kn: { title: "PM 23ನೇ PM-KISAN ಕಿಸ್ತಿ ಬಿಡುಗಡೆ ಮಾಡಿದರು", content: "ಪಶ್ಚಿಮ ಬಂಗಾಳದಿಂದ ರೂ.18,984 ಕೋಟಿ 9.49 ಕೋಟಿ ರೈತರಿಗೆ. ವರ್ಷಕ್ಕೆ ರೂ.6,000 ಆದಾಯ ಸಹಾಯ." },
+            bn: { title: "PM 23তম PM-KISAN কিস্তি প্রকাশ করেছেন", content: "পশ্চিমবঙ্গ থেকে ১৮,৯৮৪ কোটি টাকা ৯.৪৯ কোটি কৃষকের কাছে। বার্ষিক ৬,০০০ টাকা আয় সহায়তা।" },
+            or: { title: "PM 23ତମ PM-KISAN କିସ୍ତି ଜାରି କଲେ", content: "ପଶ୍ଚିମ ବଙ୍ଗରୁ 18,984 କୋଟି ଟଙ୍କା 9.49 କୋଟି ଚାଷୀଙ୍କୁ। ବାର୍ଷିକ 6,000 ଟଙ୍କା ଆୟ ସହାୟତା।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000013",
+        publisher: "The Hindu BusinessLine",
+        author: "Agri Business Desk",
+        date: "2026-03-31T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&q=80&w=800",
+        link: "https://www.thehindubusinessline.com/economy/agri-business/centre-kicks-off-procurement-season-with-18000-tonnes-of-wheat-targets-303-lakh-tonnes/article70810725.ece",
+        is_top: false,
+        translations: {
+            en: { title: "Centre Kicks Off Wheat Procurement, Targets 30.3 Million Tonnes", content: "The government began wheat procurement for 2026-27 with an initial target of 30.336 million tonnes by June 30. Punjab, Madhya Pradesh and Haryana are the top contributing states. MSP for wheat is fixed at Rs 2,585 per quintal." },
+            hi: { title: "केंद्र ने गेहूं खरीद अभियान शुरू किया, लक्ष्य 30.3 मिलियन टन", content: "30 जून तक 30.336 मिलियन टन खरीद का लक्ष्य। गेहूं का MSP 2,585 रुपये प्रति क्विंटल निर्धारित।" },
+            gu: { title: "કેન્દ્રે ઘઉં ખરીદી શરૂ કરી, લક્ષ્ય 30.3 મિલિયન ટન", content: "30 જૂન સુધી 30.336 મિલિયન ટન ખરીદીનું લક્ષ્ય. ઘઉંનો MSP 2,585 રૂપિયા પ્રતિ ક્વિન્ટલ." },
+            mr: { title: "केंद्राने गहू खरेदी सुरू केली, लक्ष्य 30.3 दशलक्ष टन", content: "30 जूनपर्यंत 30.336 दशलक्ष टन खरेदीचे लक्ष्य. गव्हाचा MSP 2,585 रुपये प्रति क्विंटल." },
+            pa: { title: "ਕੇਂਦਰ ਨੇ ਕਣਕ ਖਰੀਦ ਮੁਹਿੰਮ ਸ਼ੁਰੂ ਕੀਤੀ, ਟੀਚਾ 30.3 ਮਿਲੀਅਨ ਟਨ", content: "30 ਜੂਨ ਤੱਕ 30.336 ਮਿਲੀਅਨ ਟਨ ਖਰੀਦ ਦਾ ਟੀਚਾ। ਕਣਕ ਦਾ MSP 2,585 ਰੁਪਏ ਪ੍ਰਤੀ ਕੁਇੰਟਲ।" },
+            ta: { title: "மத்திய அரசு கோதுமை கொள்முதலைத் தொடங்கியது", content: "ஜூன் 30 வரை 30.336 மில்லியன் டன் இலக்கு. கோதுமை MSP ரூ.2,585 ஒரு குவிண்டால்." },
+            te: { title: "కేంద్రం గోధుమ కొనుగోలు ప్రారంభించింది", content: "జూన్ 30 వరకు 30.336 మిలియన్ టన్నుల లక్ష్యం. గోధుమ MSP రూ.2,585 ప్రతి క్వింటాల్." },
+            kn: { title: "ಕೇಂದ್ರ ಗೋಧಿ ಖರೀದಿ ಪ್ರಾರಂಭಿಸಿದೆ", content: "ಜೂನ್ 30 ವರೆಗೆ 30.336 ಮಿಲಿಯನ್ ಟನ್ ಗುರಿ. ಗೋಧಿ MSP ರೂ.2,585 ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್." },
+            bn: { title: "কেন্দ্র গম সংগ্রহ শুরু করেছে", content: "৩০ জুন পর্যন্ত ৩০.৩৩৬ মিলিয়ন টন লক্ষ্য। গমের MSP ২,৫৮৫ টাকা প্রতি কুইন্টাল।" },
+            or: { title: "କେନ୍ଦ୍ର ଗହମ କ୍ରୟ ଆରମ୍ଭ କଲା", content: "30 ଜୁନ୍ ପର୍ଯ୍ୟନ୍ତ 30.336 ମିଲିଅନ୍ ଟନ୍ ଲକ୍ଷ୍ୟ। ଗହମର MSP 2,585 ଟଙ୍କା ପ୍ରତି କ୍ୱିଣ୍ଟାଲ୍।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000014",
+        publisher: "The Times of India",
+        author: "Business Bureau",
+        date: "2026-04-22T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&q=80&w=800",
+        link: "https://timesofindia.indiatimes.com/business/india-business/government-raises-wheat-procurement-target-by-15-as-farmers-turn-to-msp/articleshow/130503990.cms",
+        is_top: false,
+        translations: {
+            en: { title: "Government Raises Wheat Procurement Target by 15%", content: "The Centre increased the wheat procurement target to 34.5 million tonnes as more farmers opted to sell at MSP amid lower mandi prices. Madhya Pradesh, Uttar Pradesh and Rajasthan saw significant target revisions." },
+            hi: { title: "सरकार ने गेहूं खरीद लक्ष्य 15% बढ़ाया", content: "मंडी भाव कम होने से अधिक किसान MSP पर बेच रहे हैं। लक्ष्य 34.5 मिलियन टन तक बढ़ाया गया।" },
+            gu: { title: "સરકારે ઘઉં ખરીદી લક્ષ્ય 15% વધાર્યું", content: "મંડી ભાવ ઓછા હોવાથી વધુ ખેડૂતો MSP પર વેચી રહ્યા છે. લક્ષ્ય 34.5 મિલિયન ટન." },
+            mr: { title: "सरकारने गहू खरेदी लक्ष्य 15% वाढवले", content: "मंडी भाव कमी असल्याने अधिक शेतकरी MSP वर विकत आहेत. लक्ष्य 34.5 दशलक्ष टन." },
+            pa: { title: "ਸਰਕਾਰ ਨੇ ਕਣਕ ਖਰੀਦ ਟੀਚਾ 15% ਵਧਾਇਆ", content: "ਮੰਡੀ ਭਾਅ ਘੱਟ ਹੋਣ ਕਾਰਨ ਵਧੇਰੇ ਕਿਸਾਨ MSP 'ਤੇ ਵੇਚ ਰਹੇ ਹਨ। ਟੀਚਾ 34.5 ਮਿਲੀਅਨ ਟਨ।" },
+            ta: { title: "அரசு கோதுமை கொள்முதல் இலக்கை 15% உயர்த்தியது", content: "மண்டி விலை குறைவாக இருப்பதால் அதிக விவசாயிகள் MSP-யில் விற்கின்றனர். இலக்கு 34.5 மில்லியன் டன்." },
+            te: { title: "ప్రభుత్వం గోధుమ కొనుగోలు లక్ష్యాన్ని 15% పెంచింది", content: "మండి ధరలు తక్కువగా ఉండటంతో ఎక్కువ రైతులు MSPకు అమ్ముతున్నారు. లక్ష్యం 34.5 మిలియన్ టన్నులు." },
+            kn: { title: "ಸರ್ಕಾರ ಗೋಧಿ ಖರೀದಿ ಗುರಿಯನ್ನು 15% ಹೆಚ್ಚಿಸಿದೆ", content: "ಮಂಡಿ ಬೆಲೆ ಕಡಿಮೆಯಾಗಿರುವುದರಿಂದ ಹೆಚ್ಚು ರೈತರು MSPಗೆ ಮಾರಾಟ ಮಾಡುತ್ತಿದ್ದಾರೆ. ಗುರಿ 34.5 ಮಿಲಿಯನ್ ಟನ್." },
+            bn: { title: "সরকার গম সংগ্রহ লক্ষ্য ১৫% বাড়িয়েছে", content: "মান্ডি দাম কম থাকায় বেশি কৃষক MSP-তে বিক্রি করছেন। লক্ষ্য ৩৪.৫ মিলিয়ন টন।" },
+            or: { title: "ସରକାର ଗହମ କ୍ରୟ ଲକ୍ଷ୍ୟ 15% ବଢ଼ାଇଲା", content: "ମଣ୍ଡି ଦର କମ୍ ଥିବାରୁ ଅଧିକ ଚାଷୀ MSPରେ ବିକ୍ରି କରୁଛନ୍ତି। ଲକ୍ଷ୍ୟ 34.5 ମିଲିଅନ୍ ଟନ୍।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000015",
+        publisher: "The Hindu BusinessLine",
+        author: "Economy Desk",
+        date: "2026-06-15T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800",
+        link: "https://www.thehindubusinessline.com/economy/agri-business/indias-wheat-procurement-by-govt-tops-355-million-tonnes-target/article69745678.ece",
+        is_top: false,
+        translations: {
+            en: { title: "India's Wheat Procurement Tops 35.5 Million Tonnes", content: "Government agencies procured over 35.5 million tonnes of wheat, exceeding the revised target of 34.5 million tonnes. Punjab led with 12.6 million tonnes, followed by Madhya Pradesh and Haryana, strengthening buffer stocks." },
+            hi: { title: "भारत की गेहूं खरीद 35.5 मिलियन टन से अधिक", content: "सरकारी एजेंसियों ने संशोधित लक्ष्य 34.5 मिलियन टन से अधिक गेहूं खरीदा। पंजाब सबसे आगे, बफर स्टॉक मजबूत।" },
+            gu: { title: "ભારતની ઘઉં ખરીદી 35.5 મિલિયન ટનથી વધુ", content: "સરકારી એજન્સીઓએ સંશોધિત લક્ષ્ય કરતાં વધુ ઘઉં ખરીદ્યું. પંજાબ અગ્રણી, બફર સ્ટોક મજબૂત." },
+            mr: { title: "भारताची गहू खरेदी 35.5 दशलक्ष टनपेक्षा जास्त", content: "सरकारी एजन्सींनी संशोधित लक्ष्यापेक्षा जास्त गहू खरेदी केला. पंजाब अग्रणी, बफर स्टॉक मजबूत." },
+            pa: { title: "ਭਾਰਤ ਦੀ ਕਣਕ ਖਰੀਦ 35.5 ਮਿਲੀਅਨ ਟਨ ਤੋਂ ਵੱਧ", content: "ਸਰਕਾਰੀ ਏਜੰਸੀਆਂ ਨੇ ਸੋਧੇ ਟੀਚੇ ਤੋਂ ਵੱਧ ਕਣਕ ਖਰੀਦੀ। ਪੰਜਾਬ ਅਗਵਾਈ, ਬਫਰ ਸਟਾਕ ਮਜ਼ਬੂਤ।" },
+            ta: { title: "இந்தியாவின் கோதுமை கொள்முதல் 35.5 மில்லியன் டன்", content: "அரசு நிறுவனங்கள் திருத்தப்பட்ட இலக்கை மீறி கோதுமை கொள்முதல். பஞ்சாப் முன்னிலை, இருப்பு வலுப்படுத்தப்பட்டது." },
+            te: { title: "భారత గోధుమ కొనుగోలు 35.5 మిలియన్ టన్నులు", content: "ప్రభుత్వ ఏజెన్సీలు సవరించిన లక్ష్యాన్ని మించి గోధుమ కొనుగోలు. పంజాబ్ ముందంజ, బఫర్ స్టాక్ బలపడింది." },
+            kn: { title: "ಭಾರತದ ಗೋಧಿ ಖರೀದಿ 35.5 ಮಿಲಿಯನ್ ಟನ್", content: "ಸರ್ಕಾರಿ ಸಂಸ್ಥೆಗಳು ಸಂಶೋಧಿತ ಗುರಿಯನ್ನು ಮೀರಿ ಗೋಧಿ ಖರೀದಿ. ಪಂಜಾಬ್ ಮುಂದೆ, ಬಫರ್ ಸ್ಟಾಕ್ ಬಲವಾಗಿದೆ." },
+            bn: { title: "ভারতের গম সংগ্রহ ৩৫.৫ মিলিয়ন টন", content: "সরকারি সংস্থাগুলি সংশোধিত লক্ষ্য ছাড়িয়ে গম সংগ্রহ করেছে। পাঞ্জাব শীর্ষে, বাফার স্টক শক্তিশালী।" },
+            or: { title: "ଭାରତର ଗହମ କ୍ରୟ 35.5 ମିଲିଅନ୍ ଟନ୍", content: "ସରକାରୀ ଏଜେନ୍ସିଗୁଡ଼ିକ ସଂଶୋଧିତ ଲକ୍ଷ୍ୟ ଅତିକ୍ରମ କରି ଗହମ କ୍ରୟ କଲେ। ପଞ୍ଜାବ ଅଗ୍ରଣୀ, ବଫର୍ ଷ୍ଟକ୍ ମଜବୁତ।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000016",
+        publisher: "The Hindu",
+        author: "Science Desk",
+        date: "2026-06-30T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1527482797697-8795b05a13fe?auto=format&fit=crop&q=80&w=800",
+        link: "https://www.thehindu.com/sci-tech/energy-and-environment/monthly-average-rainfall-over-india-expected-to-be-below-normal-in-july-imd/article69876543.ece",
+        is_top: true,
+        translations: {
+            en: { title: "IMD Forecasts Below-Normal Rainfall for July 2026", content: "The India Meteorological Department predicted below-normal rainfall for July, with northwest and central India likely to face deficits. Farmers are advised to plan irrigation and crop choices carefully for kharif season." },
+            hi: { title: "IMD ने जुलाई में सामान्य से कम बारिश का पूर्वानुमान किया", content: "उत्तर-पश्चिम और मध्य भारत में कमी की संभावना। खरीफ के लिए सिंचाई और फसल योजना पर ध्यान दें।" },
+            gu: { title: "IMDએ જુલાઈમાં સામાન્ય કરતાં ઓછો વરસાદ અનુમાનિત", content: "ઉત્તર-પશ્ચિમ અને મધ્ય ભારતમાં ઘટાડો સંભવ. ખરીફ માટે સિંચાઈ અને પાક યોજના કરો." },
+            mr: { title: "IMD ने जुलैमध्ये सामान्यपेक्षा कमी पाऊस अंदाज केला", content: "उत्तर-पश्चिम आणि मध्य भारतात तूटीची शक्यता. खरीपसाठी सिंचन आणि पीक नियोजन करा." },
+            pa: { title: "IMD ਨੇ ਜੁਲਾਈ ਵਿੱਚ ਘੱਟ ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ ਕੀਤੀ", content: "ਉੱਤਰ-ਪੱਛਮੀ ਅਤੇ ਮੱਧ ਭਾਰਤ ਵਿੱਚ ਘਾਟੇ ਦੀ ਸੰਭਾਵਨਾ। ਖਰੀਫ ਲਈ ਸਿੰਚਾਈ ਅਤੇ ਫਸਲ ਯੋਜਨਾ ਕਰੋ।" },
+            ta: { title: "IMD ஜூலையில் குறைந்த மழை முன்னறிவிப்பு", content: "வடமேற்கு மற்றும் மத்திய இந்தியாவில் பற்றாக்குறை. காரிப் பருவத்திற்கு பாசனம் திட்டமிடுங்கள்." },
+            te: { title: "IMD జూలైలో తక్కువ వర్షాల అంచనా", content: "వాయువ్య మరియు మధ్య భారతదేశంలో లోపం సంభావ్యత. ఖరీఫ్ కోసం సాగు ప్రణాళిక చేయండి." },
+            kn: { title: "IMD ಜುಲೈನಲ್ಲಿ ಕಡಿಮೆ ಮಳೆ ಮುನ್ಸೂಚನೆ", content: "ವಾಯವ್ಯ ಮತ್ತು ಮಧ್ಯ ಭಾರತದಲ್ಲಿ ಕೊರತೆ ಸಾಧ್ಯತೆ. ಖರೀಫ್‌ಗೆ ನೀರಾವರಿ ಯೋಜನೆ ಮಾಡಿ." },
+            bn: { title: "IMD জুলাইয়ে স্বাভাবিকের চেয়ে কম বৃষ্টির পূর্বাভাস", content: "উত্তর-পশ্চিম ও মধ্য ভারতে ঘাটতির সম্ভাবনা। খরিফের জন্য সেচ পরিকল্পনা করুন।" },
+            or: { title: "IMD ଜୁଲାଇରେ କମ୍ ବର୍ଷା ପୂର୍ବାନୁମାନ", content: "ଉତ୍ତର-ପଶ୍ଚିମ ଏବଂ ମଧ୍ୟ ଭାରତରେ ଘାଟ ସମ୍ଭାବନା। ଖରିଫ୍ ପାଇଁ ସିଞ୍ଚନ ଯୋଜନା କରନ୍ତୁ।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000017",
+        publisher: "BBC News",
+        author: "South Asia Correspondent",
+        date: "2026-06-28T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&q=80&w=800",
+        link: "https://www.bbc.com/news/articles/c5yzk5rqyr4o",
+        is_top: false,
+        translations: {
+            en: { title: "Driest June in Years Raises Farming Worries Across India", content: "India recorded one of its driest Junes in decades, with rainfall 11% below normal. Delayed monsoon onset has slowed kharif sowing in Maharashtra, Karnataka and parts of the Gangetic plains, worrying farmers ahead of the peak planting window." },
+            hi: { title: "दशकों में सबसे सूखा जून, किसान चिंतित", content: "जून में 11% कम बारिश। महाराष्ट्र, कर्नाटक में खरीफ बुवाई धीमी, किसान चिंतित।" },
+            gu: { title: "દાયકાઓનો સૌથી શુષ્ક જૂન, ખેડૂતો ચિંતિત", content: "જૂનમાં 11% ઓછો વરસાદ. મહારાષ્ટ્ર, કર્ણાટકમાં ખરીફ વાવેતર ધીમું." },
+            mr: { title: "दशकांतील सर्वात कोरडा जून, शेतकरी चिंतित", content: "जूनमध्ये 11% कमी पाऊस. महाराष्ट्र, कर्नाटकमध्ये खरीप पेरणी मंद." },
+            pa: { title: "ਦਹਾਕਿਆਂ ਦਾ ਸਭ ਤੋਂ ਸੁੱਕਾ ਜੂਨ, ਕਿਸਾਨ ਚਿੰਤਿਤ", content: "ਜੂਨ ਵਿੱਚ 11% ਘੱਟ ਮੀਂਹ। ਮਹਾਰਾਸ਼ਟਰ, ਕਰਨਾਟਕ ਵਿੱਚ ਖਰੀਫ ਬਿਜਾਈ ਧੀਮੀ।" },
+            ta: { title: "பத்தாண்டுகளின் வறண்ட ஜூன், விவசாயிகள் கவலை", content: "ஜூனில் 11% குறைந்த மழை. மகாராஷ்டிரம், கர்நாடகாவில் காரிப் நடவு மந்தம்." },
+            te: { title: "దశాబ్దాలలో అత్యంత ఎండ జూన్, రైతుల ఆందోళన", content: "జూన్‌లో 11% తక్కువ వర్షాలు. మహారాష్ట్ర, కర్ణాటకలో ఖరీఫ్ విత్తనం మందగించింది." },
+            kn: { title: "ದಶಕಗಳ ಒಣ ಜೂನ್, ರೈತರು ಚಿಂತಿತರು", content: "ಜೂನ್‌ನಲ್ಲಿ 11% ಕಡಿಮೆ ಮಳೆ. ಮಹಾರಾಷ್ಟ್ರ, ಕರ್ನಾಟಕದಲ್ಲಿ ಖರೀಫ್ ಬಿತ್ತನೆ ನಿಧಾನ." },
+            bn: { title: "দশকের শুষ্কতম জুন, কৃষক উদ্বিগ্ন", content: "জুনে ১১% কম বৃষ্টি। মহারাষ্ট্র, কর্ণাটকে খরিফ বপন ধীর।" },
+            or: { title: "ଦଶକର ସବୁଠାରୁ ଶୁଷ୍କ ଜୁନ୍, ଚାଷୀ ଚିନ୍ତିତ", content: "ଜୁନ୍ରେ 11% କମ୍ ବର୍ଷା। ମହାରାଷ୍ଟ୍ର, କର୍ଣ୍ଣାଟକରେ ଖରିଫ୍ ବିତରଣ ଧୀର।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000018",
+        publisher: "Down To Earth",
+        author: "Climate Desk",
+        date: "2026-07-10T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800",
+        link: "https://www.downtoearth.org.in/agriculture/el-ni-o-impact-monsoon-rainfall-deficit-kharif-sowing-20-behind-last-year",
+        is_top: false,
+        translations: {
+            en: { title: "El Niño Impact: Kharif Sowing 20% Behind Last Year", content: "Weak monsoon and El Niño conditions left kharif sowing about 20% behind the previous year by early July. Pulses, oilseeds and coarse cereals showed the largest gaps. Experts urge contingency cropping in rain-deficit districts." },
+            hi: { title: "एल नीनो प्रभाव: खरीफ बुवाई पिछले साल से 20% पीछे", content: "कमजोर मानसून से दाल, तिलहन और मोटे अनाज में सबसे बड़ी कमी। वर्षा घाट वाले जिलों में वैकल्पिक फसलें अपनाएं।" },
+            gu: { title: "એલ નિનો અસર: ખરીફ વાવેતર 20% પાછળ", content: "નબળા માનસૂનથી દાળ, તેલબીય અને મોટા ધાન્યમાં સૌથી મોટી ઘટાડો." },
+            mr: { title: "एल निनो प्रभाव: खरीप पेरणी 20% मागे", content: "कमकुवत मान्सूनमुळे डाळ, तेलबिया आणि ज्वारीमध्ये सर्वात मोठी तूट." },
+            pa: { title: "ਐਲ ਨੀਨੋ ਪ੍ਰਭਾਵ: ਖਰੀਫ ਬਿਜਾਈ 20% ਪਿੱਛੇ", content: "ਕਮਜ਼ੋਰ ਮਾਨਸੂਨ ਨਾਲ ਦਾਲਾਂ, ਤਿਲਹਨ ਵਿੱਚ ਸਭ ਤੋਂ ਵੱਡੀ ਘਾਟ।" },
+            ta: { title: "எல் நினோ தாக்கம்: காரிப் நடவு 20% பின்தங்கியது", content: "பலவீனமான பருவமழையால் பருப்பு, எண்ணெய் வித்துக்களில் பெரிய இடைவெளி." },
+            te: { title: "ఎల్ నినో ప్రభావం: ఖరీఫ్ విత్తనం 20% వెనుకబడింది", content: "బలహీనమైన మాన్సూన్‌తో పప్పులు, నూనెగింజలలో పెద్ద లోపం." },
+            kn: { title: "ಎಲ್ ನಿನೋ ಪರಿಣಾಮ: ಖರೀಫ್ ಬಿತ್ತನೆ 20% ಹಿಂದೆ", content: "ದುರ್ಬಲ ಮಾನ್ಸೂನ್‌ನಿಂದ ಬೇಳೆ, ಎಣ್ಣೆ ಬೀಜಗಳಲ್ಲಿ ದೊಡ್ಡ ಕೊರತೆ." },
+            bn: { title: "এল নিনো প্রভাব: খরিফ বপন ২০% পিছিয়ে", content: "দুর্বল মৌসুমি বৃষ্টিতে ডাল, তেলবীজে সবচেয়ে বড় ঘাটতি।" },
+            or: { title: "ଏଲ୍ ନିନୋ ପ୍ରଭାବ: ଖରିଫ୍ ବିତରଣ 20% ପଛରେ", content: "ଦୁର୍ବଳ ମୌସୁମୀ ବର୍ଷାରେ ଡାଲି, ତେଲବିହନରେ ସର୍ବାଧିକ ଘାଟ।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000019",
+        publisher: "Business Standard",
+        author: "Economy Bureau",
+        date: "2026-07-28T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&q=80&w=800",
+        link: "https://www.business-standard.com/economy/news/summer-crop-sowing-gains-pace-as-monsoon-rains-revive-across-india-125072801234_1.html",
+        is_top: false,
+        translations: {
+            en: { title: "Kharif Sowing Gains Pace as Monsoon Rains Revive", content: "Revival of monsoon across central and western India accelerated kharif sowing in late July. Rice, cotton and soybean acreage picked up in Madhya Pradesh, Maharashtra and Gujarat as soil moisture improved after weeks of deficit." },
+            hi: { title: "मानसून लौटने से खरीफ बुवाई में तेजी", content: "मध्य और पश्चिम भारत में मानसून सक्रिय होने से धान, कपास और सोयाबीन की बुवाई तेज। मिट्टी की नमी में सुधार।" },
+            gu: { title: "માનસૂન પાછો આવતાં ખરીફ વાવેતર ઝડપી", content: "મધ્ય અને પશ્ચિમ ભારતમાં ધાન, કપાસ અને સોયાબીનની વાવેતર વધી. માટીની ભેજ સુધરી." },
+            mr: { title: "मान्सून परतल्याने खरीप पेरणी वेगवान", content: "मध्य आणि पश्चिम भारतात भात, कापूस आणि सोयाबीन पेरणी वाढली. मातीची ओलावा सुधारला." },
+            pa: { title: "ਮਾਨਸੂਨ ਵਾਪਸੀ ਨਾਲ ਖਰੀਫ ਬਿਜਾਈ ਤੇਜ਼", content: "ਮੱਧ ਅਤੇ ਪੱਛਮੀ ਭਾਰਤ ਵਿੱਚ ਧਾਨ, ਕਪਾਹ ਅਤੇ ਸੋਯਾਬੀਨ ਦੀ ਬਿਜਾਈ ਵਧੀ। ਮਿੱਟੀ ਦੀ ਨਮੀ ਸੁਧਰੀ।" },
+            ta: { title: "பருவமழை திரும்பியதால் காரிப் நடவு வேகமடைந்தது", content: "மத்திய மற்றும் மேற்கு இந்தியாவில் நெல், பருத்தி, சோயா நடவு அதிகரித்தது." },
+            te: { title: "మాన్సూన్ తిరిగి వచ్చడంతో ఖరీఫ్ విత్తనం వేగం పొందింది", content: "మధ్య, పశ్చిమ భారతదేశంలో వరి, పత్తి, సోయాబీన్ విత్తనం పెరిగింది." },
+            kn: { title: "ಮಾನ್ಸೂನ್ ಮರಳಿದಂತೆ ಖರೀಫ್ ಬಿತ್ತನೆ ವೇಗವಾಯಿತು", content: "ಮಧ್ಯ ಮತ್ತು ಪಶ್ಚಿಮ ಭಾರತದಲ್ಲಿ ಅಕ್ಕಿ, ಹತ್ತಿ, ಸೋಯಾಬೀನ್ ಬಿತ್ತನೆ ಹೆಚ್ಚಾಯಿತು." },
+            bn: { title: "মৌসুমি বৃষ্টি ফিরে আসায় খরিফ বপন ত্বরান্বিত", content: "মধ্য ও পশ্চিম ভারতে ধান, তুলা, সয়াবিন বপন বেড়েছে।" },
+            or: { title: "ମୌସୁମୀ ବର୍ଷା ଫେରିଲା, ଖରିଫ୍ ବିତରଣ ତୀବ୍ର", content: "ମଧ୍ୟ ଏବଂ ପଶ୍ଚିମ ଭାରତରେ ଧାନ, କପା, ସୋୟାବିନ୍ ବିତରଣ ବୃଦ୍ଧି।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000020",
+        publisher: "The Hindu BusinessLine",
+        author: "Agri Desk",
+        date: "2026-07-25T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&q=80&w=800",
+        link: "https://www.thehindubusinessline.com/economy/agri-business/kharif-sowing-deficit-less-than-5-as-monsoon-picks-up/article69912345.ece",
+        is_top: true,
+        translations: {
+            en: { title: "Kharif Sowing Deficit Shrinks to Less Than 5%", content: "As monsoon activity strengthened in the second half of July, the kharif sowing gap compared to last year narrowed to under 5%. Rice area crossed 280 lakh hectares while pulses and oilseeds continued to lag slightly." },
+            hi: { title: "खरीफ बुवाई की कमी 5% से कम हो गई", content: "जुलाई के दूसरे पखवाड़े में मानसून सक्रिय होने से अंतर घटा। धान 280 लाख हेक्टेयर से अधिक।" },
+            gu: { title: "ખરીફ વાવેતરની ઘટાડો 5% થી ઓછી", content: "જુલાઈના બીજા અડધામાં માનસૂન સક્રિય થયું. ધાન 280 લાખ હેક્ટરથી વધુ." },
+            mr: { title: "खरीप पेरणी तूट 5% पेक्षा कमी", content: "जुलैच्या दुसऱ्या अर्ध्यात मान्सून सक्रिय. भात 280 लाख हेक्टरपेक्षा जास्त." },
+            pa: { title: "ਖਰੀਫ ਬਿਜਾਈ ਦੀ ਘਾਟ 5% ਤੋਂ ਘੱਟ", content: "ਜੁਲਾਈ ਦੇ ਦੂਜੇ ਅੱਧ ਵਿੱਚ ਮਾਨਸੂਨ ਸਰਗਰਮ। ਧਾਨ 280 ਲੱਖ ਹੈਕਟੇਅਰ ਤੋਂ ਵੱਧ।" },
+            ta: { title: "காரிப் நடவு பற்றாக்குறை 5% க்கும் குறைவாக குறைந்தது", content: "ஜூலை இரண்டாம் பாதியில் பருவமழை வலுப்படுத்தியது. நெல் 280 லட்சம் ஹெக்டேர்." },
+            te: { title: "ఖరీఫ్ విత్తన లోపం 5% కంటే తక్కువకు తగ్గింది", content: "జూలై రెండవ సగంలో మాన్సూన్ బలపడింది. వరి 280 లక్షల హెక్టార్లు." },
+            kn: { title: "ಖರೀಫ್ ಬಿತ್ತನೆ ಕೊರತೆ 5% ಕ್ಕಿಂತ ಕಡಿಮೆ", content: "ಜುಲೈ ಎರಡನೇ ಅರ್ಧದಲ್ಲಿ ಮಾನ್ಸೂನ್ ಬಲವಾಯಿತು. ಅಕ್ಕಿ 280 ಲಕ್ಷ ಹೆಕ್ಟೇರ್." },
+            bn: { title: "খরিফ বপনের ঘাটতি ৫% এর নিচে নেমেছে", content: "জুলাইয়ের দ্বিতীয়ার্ধে মৌসুমি বৃষ্টি শক্তিশালী। ধান ২৮০ লক্ষ হেক্টর।" },
+            or: { title: "ଖରିଫ୍ ବିତରଣ ଘାଟ 5% ରୁ କମ୍", content: "ଜୁଲାଇ ଦ୍ୱିତୀୟ ଅଧାରେ ମୌସୁମୀ ବର୍ଷା ବଳିଶାଳୀ। ଧାନ 280 ଲକ୍ଷ ହେକ୍ଟର୍।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000021",
+        publisher: "Krishak Jagat",
+        author: "Editorial Team",
+        date: "2026-07-24T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&q=80&w=800",
+        link: "https://krishakjagat.org/agriculture-news/kharif-sowing-slowed-with-sowing-covering-787-37-lakh-hectares/",
+        is_top: false,
+        translations: {
+            en: { title: "Kharif Sowing Covers 787.37 Lakh Hectares by Mid-July", content: "Total kharif sowing reached 787.37 lakh hectares by July 24, still trailing last year's pace. Rice led at 280 lakh hectares, followed by pulses at 95 lakh and oilseeds at 145 lakh hectares across the country." },
+            hi: { title: "मध्य जुलाई तक खरीफ बुवाई 787.37 लाख हेक्टेयर", content: "धान 280 लाख, दाल 95 लाख और तिलहन 145 लाख हेक्टेयर पर बोया गया। पिछले साल से धीमी गति।" },
+            gu: { title: "મધ્ય જુલાઈ સુધી ખરીફ 787.37 લાખ હેક્ટર", content: "ધાન 280 લાખ, દાળ 95 લાખ, તેલબીય 145 લાખ હેક્ટર. ગત વર્ષ કરતાં ધીમું." },
+            mr: { title: "मध्य जुलैपर्यंत खरीप 787.37 लाख हेक्टर", content: "भात 280 लाख, डाळ 95 लाख, तेलबिया 145 लाख हेक्टर. मागील वर्षापेक्षा मंद." },
+            pa: { title: "ਮੱਧ ਜੁਲਾਈ ਤੱਕ ਖਰੀਫ 787.37 ਲੱਖ ਹੈਕਟੇਅਰ", content: "ਧਾਨ 280 ਲੱਖ, ਦਾਲ 95 ਲੱਖ, ਤਿਲਹਨ 145 ਲੱਖ ਹੈਕਟੇਅਰ। ਪਿਛਲੇ ਸਾਲ ਨਾਲੋਂ ਧੀਮੀ ਗਤੀ।" },
+            ta: { title: "ஜூலை நடுவில் காரிப் 787.37 லட்சம் ஹெக்டேர்", content: "நெல் 280 லட்சம், பருப்பு 95 லட்சம், எண்ணெய் வித்து 145 லட்சம் ஹெக்டேர்." },
+            te: { title: "జూలై మధ్యలో ఖరీఫ్ 787.37 లక్షల హెక్టార్లు", content: "వరి 280 లక్షలు, పప్పులు 95 లక్షలు, నూనెగింజలు 145 లక్షల హెక్టార్లు." },
+            kn: { title: "ಜುಲೈ ಮಧ್ಯದಲ್ಲಿ ಖರೀಫ್ 787.37 ಲಕ್ಷ ಹೆಕ್ಟೇರ್", content: "ಅಕ್ಕಿ 280 ಲಕ್ಷ, ಬೇಳೆ 95 ಲಕ್ಷ, ಎಣ್ಣೆ ಬೀಜ 145 ಲಕ್ಷ ಹೆಕ್ಟೇರ್." },
+            bn: { title: "জুলাই মধ্যে খরিফ ৭৮৭.৩৭ লক্ষ হেক্টর", content: "ধান ২৮০ লক্ষ, ডাল ৯৫ লক্ষ, তেলবীজ ১৪৫ লক্ষ হেক্টর।" },
+            or: { title: "ଜୁଲାଇ ମଧ୍ୟରେ ଖରିଫ୍ 787.37 ଲକ୍ଷ ହେକ୍ଟର୍", content: "ଧାନ 280 ଲକ୍ଷ, ଡାଲି 95 ଲକ୍ଷ, ତେଲବିହନ 145 ଲକ୍ଷ ହେକ୍ଟର୍।" }
+        }
+    },
+    {
+        id: "00000000-0000-0000-0000-000000000022",
+        publisher: "Krishak Jagat",
+        author: "Policy Reporter",
+        date: "2026-07-22T00:00:00Z",
+        image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=800",
+        link: "https://krishakjagat.org/agriculture-news/ministry-of-agricultures-weekly-review-meeting-chaired-by-shivraj-singh-chouhan/",
+        is_top: false,
+        translations: {
+            en: { title: "Agriculture Ministry Reviews Kharif Progress in Weekly Meeting", content: "Union Agriculture Minister Shivraj Singh Chouhan chaired a weekly review on kharif sowing, crop insurance claims and fertilizer availability. States were asked to expedite sowing in rain-fed areas and ensure timely MSP procurement operations." },
+            hi: { title: "कृषि मंत्रालय ने खरीफ प्रगति की साप्ताहिक समीक्षा की", content: "शिवराज सिंह चौहान ने खरीफ बुवाई, फसल बीमा और उर्वरक उपलब्धता की समीक्षा की। राज्यों को तेजी लाने का निर्देश।" },
+            gu: { title: "કૃષિ મંત્રાલયે ખરીફ પ્રગતિની સાપ્તાહિક સમીક્ષા કરી", content: "શિવરાજ સિંહ ચૌહાણે ખરીફ વાવેતર, વીમા અને ખાતરની સમીક્ષા કરી." },
+            mr: { title: "कृषी मंत्रालयाने खरीप प्रगतीचे साप्ताहिक पुनरावलोकन केले", content: "शिवराज सिंह चौहान यांनी खरीप पेरणी, विमा आणि खतांचे पुनरावलोकन केले." },
+            pa: { title: "ਖੇਤੀਬਾੜੀ ਮੰਤਰਾਲੇ ਨੇ ਖਰੀਫ ਪ੍ਰਗਤੀ ਦੀ ਸਮੀਖਿਆ ਕੀਤੀ", content: "ਸ਼ਿਵਰਾਜ ਸਿੰਘ ਚੌਹਾਨ ਨੇ ਖਰੀਫ ਬਿਜਾਈ, ਬੀਮਾ ਅਤੇ ਖਾਦ ਦੀ ਸਮੀਖਿਆ ਕੀਤੀ।" },
+            ta: { title: "விவசாய அமைச்சகம் காரிப் முன்னேற்றத்தை மதிப்பாய்வு செய்தது", content: "சிவராஜ் சிங் சவுகான் காரிப் நடவு, காப்பீடு மற்றும் உர கிடைப்பை மதிப்பாய்வு செய்தார்." },
+            te: { title: "వ్యవసాయ మంత్రిత్వ శాఖ ఖరీఫ్ పురోగతిని సమీక్షించింది", content: "శివరాజ్ సింగ్ చౌహాన్ ఖరీఫ్ విత్తనం, బీమా మరియు ఎరువుల లభ్యతను సమీక్షించారు." },
+            kn: { title: "ಕೃಷಿ ಸಚಿವಾಲಯ ಖರೀಫ್ ಪ್ರಗತಿಯನ್ನು ಪರಿಶೀಲಿಸಿತು", content: "ಶಿವರಾಜ್ ಸಿಂಗ್ ಚೌಹಾನ್ ಖರೀಫ್ ಬಿತ್ತನೆ, ವಿಮೆ ಮತ್ತು ರಸಗೊಬ್ಬರ ಲಭ್ಯತೆಯನ್ನು ಪರಿಶೀಲಿಸಿದರು." },
+            bn: { title: "কৃষি মন্ত্রক খরিফ অগ্রগতি পর্যালোচনা করেছে", content: "শিবরাজ সিং চৌহান খরিফ বপন, বীমা ও সার সরবরাহ পর্যালোচনা করেছেন।" },
+            or: { title: "କୃଷି ମନ୍ତ୍ରଣାଳୟ ଖରିଫ୍ ପ୍ରଗତି ସମୀକ୍ଷା କଲା", content: "ଶିବରାଜ ସିଂହ ଚୌହାନ ଖରିଫ୍ ବିତରଣ, ବୀମା ଏବଂ ସାର ଉପଲବ୍ଧତା ସମୀକ୍ଷା କଲେ।" }
         }
     }
 ];

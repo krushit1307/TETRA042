@@ -1,7 +1,13 @@
 "use client"
 
 import type { CropEntry } from "@/lib/crop-calendar/types"
-import { formatDateRange, isWeedingAction, parseDateWindow } from "@/lib/crop-calendar/cropScheduleData"
+import { isWeedingAction, parseDateWindow } from "@/lib/crop-calendar/cropScheduleData"
+import {
+    formatLocalizedDateRange,
+    translateCropLabel,
+    translateNote,
+    translateSeason,
+} from "@/lib/crop-calendar/calendar-i18n"
 import {
     Dialog,
     DialogContent,
@@ -31,10 +37,10 @@ function cropBaseName(crop: string): string {
     return crop.split(" — ")[0]
 }
 
-function formatWindow(start: string, end: string): string {
+function formatWindow(start: string, end: string, t: (key: string) => string): string {
     if (start === "02-29" && end === "02-29") return ""
     const w = parseDateWindow(start, end)
-    return formatDateRange(w.startMonth, w.startDay, w.endMonth, w.endDay)
+    return formatLocalizedDateRange(w.startMonth, w.startDay, w.endMonth, w.endDay, t)
 }
 
 function getMainEntry(allCrops: CropEntry[], entry: CropEntry): CropEntry {
@@ -60,14 +66,11 @@ export function DayDetailModal({
 
     const getTodayActionLabel = (entry: CropEntry, isHarvest: boolean): string => {
         if (isHarvest) return t("calendar.harvesting")
-        if (isWeedingAction(entry.crop)) {
-            const suffix = entry.crop.split(" — ")[1]
-            return suffix || t("calendar.weeding")
-        }
-        if (entry.crop.includes(" — ")) {
-            return entry.crop.split(" — ")[1]
-        }
-        return t("calendar.sowing")
+        if (!entry.crop.includes(" — ")) return t("calendar.sowing")
+        const translated = translateCropLabel(entry.crop, t)
+        const suffix = translated.split(" — ")[1]
+        if (suffix) return suffix
+        return isWeedingAction(entry.crop) ? t("calendar.weeding") : t("calendar.fieldWork")
     }
 
     const actionStyle = (type: "sow" | "harvest" | "weeding" | "operation") => {
@@ -130,8 +133,8 @@ export function DayDetailModal({
                             const main = getMainEntry(crops, entry)
                             const type = classifyEntry(entry, harvestToday)
                             const style = actionStyle(type)
-                            const sowWindow = formatWindow(main.sowStart, main.sowEnd)
-                            const harvestWindow = formatWindow(main.harvestStart, main.harvestEnd)
+                            const sowWindow = formatWindow(main.sowStart, main.sowEnd, t)
+                            const harvestWindow = formatWindow(main.harvestStart, main.harvestEnd, t)
                             const todayLabel = getTodayActionLabel(entry, isHarvest)
 
                             return (
@@ -142,10 +145,10 @@ export function DayDetailModal({
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
                                             <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                                                {cropBaseName(entry.crop)}
+                                                {translateCropLabel(cropBaseName(entry.crop), t)}
                                             </h4>
                                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                                                {entry.season} {t("calendar.seasonSuffix")}
+                                                {translateSeason(entry.season, t)} {t("calendar.seasonSuffix")}
                                             </p>
                                         </div>
                                         <span
@@ -186,7 +189,7 @@ export function DayDetailModal({
                                     {(entry.note || main.note) && (
                                         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start gap-1.5 italic">
                                             <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                                            {entry.note || main.note}
+                                            {translateNote(entry.note || main.note, t)}
                                         </p>
                                     )}
                                 </li>

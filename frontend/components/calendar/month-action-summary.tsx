@@ -1,7 +1,14 @@
 "use client"
 
 import type { CropEntry, Season } from "@/lib/crop-calendar/types"
-import { getActionsForMonth, formatDateRange, isWeedingAction } from "@/lib/crop-calendar/cropScheduleData"
+import { getActionsForMonth, isWeedingAction } from "@/lib/crop-calendar/cropScheduleData"
+import {
+    formatLocalizedDateRange,
+    translateCropLabel,
+    translateNote,
+    translateSeason,
+} from "@/lib/crop-calendar/calendar-i18n"
+import { translateSoil, translateState } from "@/lib/crop-calendar/location-i18n"
 import { useLanguage } from "@/lib/i18n/language-context"
 
 interface MonthActionSummaryProps {
@@ -48,7 +55,7 @@ export function MonthActionSummary({ month, crops, seasonFilter, state, soil }: 
         return (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 text-center shadow-sm">
                 <p className="text-gray-500 dark:text-gray-400 text-base">
-                    {t("calendar.noActions")} <span className="font-medium text-gray-700 dark:text-gray-300">{state}</span> / <span className="font-medium text-gray-700 dark:text-gray-300">{soil}</span>.
+                    {t("calendar.noActions")} <span className="font-medium text-gray-700 dark:text-gray-300">{translateState(state, t)}</span> / <span className="font-medium text-gray-700 dark:text-gray-300">{translateSoil(soil, t)}</span>.
                 </p>
             </div>
         )
@@ -76,14 +83,14 @@ export function MonthActionSummary({ month, crops, seasonFilter, state, soil }: 
                                 {badge.label}
                             </span>
                             <div className="flex-1 min-w-0">
-                                <p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{action.crop}</p>
+                                <p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{translateCropLabel(action.crop, t)}</p>
                                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
-                                    {formatDateRange(action.startMonth, action.startDay, action.endMonth, action.endDay)}
+                                    {formatLocalizedDateRange(action.startMonth, action.startDay, action.endMonth, action.endDay, t)}
                                     {" · "}
-                                    <span className="font-medium">{action.season}</span>
+                                    <span className="font-medium">{translateSeason(action.season, t)}</span>
                                 </p>
                                 {action.note && (
-                                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 italic">{action.note}</p>
+                                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 italic">{translateNote(action.note, t)}</p>
                                 )}
                             </div>
                         </li>

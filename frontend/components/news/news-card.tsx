@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Calendar, Globe, ExternalLink } from "lucide-react"
@@ -14,6 +15,7 @@ interface NewsCardProps {
 
 export function NewsCard({ article, onClick }: NewsCardProps) {
     const { language } = useLanguage()
+    const [imageError, setImageError] = useState(false)
     const timeAgo = new Date(article.publishedAt).toLocaleDateString(undefined, {
         day: 'numeric', month: 'short', year: 'numeric'
     });
@@ -42,13 +44,14 @@ export function NewsCard({ article, onClick }: NewsCardProps) {
         >
             {/* Image/Video Section */}
             <div className="relative h-48 w-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                {article.urlToImage ? (
+                {article.urlToImage && !imageError ? (
                     <Image
                         src={article.urlToImage}
                         alt={article.title}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        onError={() => setImageError(true)}
                     />
                 ) : article.videoUrl ? (
                     <video

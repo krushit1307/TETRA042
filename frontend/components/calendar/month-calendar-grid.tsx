@@ -4,6 +4,7 @@ import { useState } from "react"
 import type { CropEntry, Season } from "@/lib/crop-calendar/types"
 import { DAYS_IN_MONTH } from "@/lib/crop-calendar/types"
 import { getDayActions, getFirstDayOffset, isWeedingAction } from "@/lib/crop-calendar/cropScheduleData"
+import { translateCropShort } from "@/lib/crop-calendar/calendar-i18n"
 import { DayDetailModal } from "@/components/calendar/day-detail-modal"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
@@ -26,13 +27,8 @@ const WEEKDAY_KEYS = [
 
 const MAX_VISIBLE_CHIPS = 2
 
-function chipLabel(crop: string): string {
-    const base = crop.split(" — ")[0].split(" ")[0]
-    if (isWeedingAction(crop)) {
-        const phase = crop.includes("2nd") ? "W2" : "W1"
-        return `${base} ${phase}`
-    }
-    return base
+function chipLabel(crop: string, t: (key: string) => string): string {
+    return translateCropShort(crop, t)
 }
 
 export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }: MonthCalendarGridProps) {
@@ -168,7 +164,7 @@ export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }:
                                             key={`sow-${c.crop}`}
                                             className="text-sm sm:text-base leading-snug px-2 py-1.5 rounded-md bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700 font-semibold truncate shadow-sm"
                                         >
-                                            🌱 {chipLabel(c.crop)}
+                                            🌱 {chipLabel(c.crop, t)}
                                         </span>
                                     ))}
                                     {visibleWeeding.map((c) => (
@@ -176,7 +172,7 @@ export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }:
                                             key={`weed-${c.crop}`}
                                             className="text-sm sm:text-base leading-snug px-2 py-1.5 rounded-md bg-yellow-200 dark:bg-yellow-500/30 text-yellow-900 dark:text-yellow-100 border border-yellow-400 dark:border-yellow-500 font-bold truncate shadow-sm ring-1 ring-yellow-300/60"
                                         >
-                                            🌿 {chipLabel(c.crop)}
+                                            🌿 {chipLabel(c.crop, t)}
                                         </span>
                                     ))}
                                     {visibleHarvest.map((c) => (
@@ -184,7 +180,7 @@ export function MonthCalendarGrid({ month, crops, seasonFilter, onMonthChange }:
                                             key={`harv-${c.crop}`}
                                             className="text-sm sm:text-base leading-snug px-2 py-1.5 rounded-md bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-700 font-semibold truncate shadow-sm"
                                         >
-                                            🌾 {chipLabel(c.crop)}
+                                            🌾 {chipLabel(c.crop, t)}
                                         </span>
                                     ))}
                                     {hiddenCount > 0 && (

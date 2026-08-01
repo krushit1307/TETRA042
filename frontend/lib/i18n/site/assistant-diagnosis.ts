@@ -1,7 +1,7 @@
 import { L } from "../helpers"
 
 export const ASSISTANT_DIAGNOSIS_TRANSLATIONS = {
-    "assistant.title": L("KrishiMitra AI Assistant", "KrishiMitra AI સહાયક", "KrishiMitra AI सहायक", "KrishiMitra AI सहाय्यक", "KrishiMitra AI ਸਹਾਇਕ", "KrishiMitra AI உதவியாளர்", "KrishiMitra AI సహాయకుడు", "KrishiMitra AI ಸಹಾಯಕ", "KrishiMitra AI সহায়ক", "KrishiMitra AI ସହାୟକ"),
+    "assistant.title": L("Sasya AI Assistant", "Sasya AI સહાયક", "Sasya AI सहायक", "Sasya AI सहाय्यक", "Sasya AI ਸਹਾਇਕ", "Sasya AI உதவியாளர்", "Sasya AI సహాయకుడు", "Sasya AI ಸಹಾಯಕ", "Sasya AI সহায়ক", "Sasya AI ସହାୟକ"),
     "assistant.subtitle": L("Your 24/7 Agricultural Advisor", "તમારો 24/7 કૃષિ સલાહકાર", "आपका 24/7 कृषि सलाहकार", "तुमचा 24/7 कृषी सल्लागार", "ਤੁਹਾਡਾ 24/7 ਖੇਤੀਬਾੜੀ ਸਲਾਹਕਾਰ", "உங்கள் 24/7 விவசாய ஆலோசகர்", "మీ 24/7 వ్యవసాయ సలహాదారు", "ನಿಮ್ಮ 24/7 ಕೃಷಿ ಸಲಹೆಗಾರ", "আপনার 24/7 কৃষি পরামর্শদাতা", "ଆପଣଙ୍କ 24/7 କୃଷି ପରାମର୍ଶଦାତା"),
     "assistant.welcomeMessage": L(
         "Hello! I am your agricultural assistant. You can ask me anything about crop diseases, irrigation, fertilizers, or markets. Please ask your question.",

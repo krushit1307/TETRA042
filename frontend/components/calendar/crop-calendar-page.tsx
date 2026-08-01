@@ -7,6 +7,7 @@ import { StateSoilSelectors } from "@/components/calendar/state-soil-selectors"
 import { MonthCalendarGrid } from "@/components/calendar/month-calendar-grid"
 import { MonthActionSummary } from "@/components/calendar/month-action-summary"
 import { getDefaultSoilForState } from "@/lib/crop-calendar/cropCalendarData"
+import { translateState } from "@/lib/crop-calendar/location-i18n"
 import { getScheduleForStateSoil } from "@/lib/crop-calendar/cropScheduleData"
 import { DEFAULT_STATE, STORAGE_KEYS, type Season, type SoilType } from "@/lib/crop-calendar/types"
 import { useLanguage } from "@/lib/i18n/language-context"
@@ -113,7 +114,7 @@ export function CropCalendarPage() {
             {status === "success" && !notice && !isDetecting && detectedState && (
                 <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-4 py-2.5" role="status">
                     <MapPin className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
-                    {t("calendar.locationDetected")} <span className="font-medium">{detectedState}</span>
+                    {t("calendar.locationDetected")} <span className="font-medium">{translateState(detectedState, t)}</span>
                 </div>
             )}
 

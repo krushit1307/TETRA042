@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
     Dialog,
     DialogContent,
@@ -21,6 +22,7 @@ interface NewsDetailModalProps {
 
 export function NewsDetailModal({ article, isOpen, onClose }: NewsDetailModalProps) {
     const { language } = useLanguage()
+    const [imageError, setImageError] = useState(false)
 
     if (!article) return null
 
@@ -35,13 +37,14 @@ export function NewsDetailModal({ article, isOpen, onClose }: NewsDetailModalPro
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
                 <div className="relative w-full h-64 md:h-80 bg-gray-100 dark:bg-gray-800">
-                    {article.urlToImage ? (
+                    {article.urlToImage && !imageError ? (
                         <Image
                             src={article.urlToImage}
                             alt={article.title}
                             fill
                             className="object-cover"
                             priority
+                            onError={() => setImageError(true)}
                         />
                     ) : (
                         <div className="flex items-center justify-center h-full text-gray-400">
