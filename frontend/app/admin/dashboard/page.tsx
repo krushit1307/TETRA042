@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+import { isAuthenticated } from "@/lib/auth"
 import { fetchAllNewsForAdmin, NewsArticle, deleteNews } from "@/lib/news-service"
 import { Plus, Edit, Trash2, Loader2, Star, FileText, Calendar } from "lucide-react"
 import Link from "next/link"
@@ -20,9 +20,8 @@ export default function AdminDashboard() {
         loadNews()
     }, [])
 
-    const checkUser = async () => {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) {
+    const checkUser = () => {
+        if (!isAuthenticated()) {
             router.push("/admin")
         }
     }
