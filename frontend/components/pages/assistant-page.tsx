@@ -8,6 +8,7 @@ import { Send, Mic, Upload, Loader, Volume2 } from "lucide-react"
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api"
 import { WavRecorder } from "@/lib/wav-recorder"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 interface Message {
   id: string
@@ -18,19 +19,31 @@ interface Message {
 }
 
 export default function AssistantPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      type: "ai",
-      content:
-        "नमस्ते! मैं आपका कृषि सहायक हूँ। आप मुझसे फसल रोग, सिंचाई, खाद या बाजार के बारे में कुछ भी पूछ सकते हैं। कृपया अपना प्रश्न पूछें।",
-      timestamp: new Date(),
-    },
-  ])
+  const { t, language, languages } = useLanguage()
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isListening, setIsListening] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setMessages((prev) => {
+      const existingWelcome = prev.find((m) => m.id === "welcome")
+      const welcome: Message = {
+        id: "welcome",
+        type: "ai",
+        content: t("assistant.welcomeMessage"),
+        timestamp: existingWelcome?.timestamp ?? new Date(),
+      }
+      const rest = prev.filter((m) => m.id !== "welcome")
+      return [welcome, ...rest]
+    })
+  }, [language, t])
+
+  const langOptions = [
+    { code: "", label: t("common.auto") },
+    ...languages.map((lang) => ({ code: lang.code, label: lang.nativeName })),
+  ]
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -77,11 +90,11 @@ export default function AssistantPage() {
       }
     } catch (error) {
       console.error('Chat error:', error)
-      toast.error('Failed to send message. Please try again.')
+      toast.error(t("assistant.toastSendFailed"))
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "ai",
-        content: "क्षमा करें, कुछ तकनीकी समस्या है। कृपया बाद में प्रयास करें।",
+        content: t("assistant.errorTechnical"),
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, errorMessage])
@@ -111,7 +124,7 @@ export default function AssistantPage() {
       } catch (error) {
         console.error('Microphone access error:', error)
         setIsListening(false)
-        setInput("Microphone access denied. Please enable microphone.")
+        setInput(t("assistant.micDenied"))
       }
     } else {
       // Stop WAV recording and upload
@@ -136,7 +149,7 @@ export default function AssistantPage() {
           }
         } catch (err) {
           console.error('Speech-to-text error:', err)
-          setInput('Voice recognition failed. Please try again.')
+          setInput(t("assistant.voiceFailed"))
         }
       }
       if (stream) { stream.getTracks().forEach(t => t.stop()); setStream(null) }
@@ -151,7 +164,7 @@ export default function AssistantPage() {
       const userMessage: Message = {
         id: Date.now().toString(),
         type: "user",
-        content: `📸 Image uploaded: ${file.name}`,
+        content: `📸 ${t("assistant.imageUploaded")}: ${file.name}`,
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, userMessage])
@@ -180,7 +193,7 @@ export default function AssistantPage() {
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           type: "ai",
-          content: "क्षमा करें, छवि विश्लेषण में समस्या है। कृपया बाद में प्रयास करें।",
+          content: t("assistant.errorImage"),
           timestamp: new Date(),
         }
         setMessages((prev) => [...prev, errorMessage])
@@ -201,28 +214,14 @@ export default function AssistantPage() {
     }
   }
 
-  const languages = [
-    { code: "", label: "Auto" },
-    { code: "hi", label: "हिंदी" },
-    { code: "en", label: "English" },
-    { code: "bn", label: "বাংলা" },
-    { code: "gu", label: "ગુજરાતી" },
-    { code: "kn", label: "ಕನ್ನಡ" },
-    { code: "ml", label: "മലയാളം" },
-    { code: "mr", label: "मराठी" },
-    { code: "or", label: "ଓଡ଼ିଆ" },
-    { code: "ta", label: "தமிழ்" },
-    { code: "te", label: "తెలుగు" },
-  ]
-
   return (
     <div className="fixed top-16 inset-x-0 bottom-0 flex flex-col bg-gradient-to-br from-green-50 to-amber-50 dark:from-gray-950 dark:to-gray-900 z-40">
       {/* Header - Fixed Top of the component */}
       <div className="flex-none bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 p-3 sm:p-4 shadow-sm z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">KrishiMitra AI Assistant</h1>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Your 24/7 Agricultural Advisor</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{t("assistant.title")}</h1>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{t("assistant.subtitle")}</p>
           </div>
         </div>
       </div>
@@ -254,7 +253,7 @@ export default function AssistantPage() {
                       <button
                         onClick={() => handleTextToSpeech(message.content, message.language || 'hi')}
                         className="ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        title="Play as audio"
+                        title={t("assistant.playAudio")}
                       >
                         <Volume2 className="w-3 h-3 opacity-70 hover:opacity-100" />
                       </button>
@@ -270,7 +269,7 @@ export default function AssistantPage() {
               <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-3 rounded-lg rounded-bl-none shadow-md">
                 <div className="flex items-center gap-2">
                   <Loader className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Thinking...</span>
+                  <span className="text-sm">{t("assistant.thinking")}</span>
                 </div>
               </div>
             </motion.div>
@@ -294,7 +293,7 @@ export default function AssistantPage() {
                 transition={{ duration: 0.6, repeat: Number.POSITIVE_INFINITY }}
                 className="w-2 h-2 bg-blue-600 rounded-full"
               />
-              <span className="text-sm text-blue-600 dark:text-blue-400">Listening...</span>
+              <span className="text-sm text-blue-600 dark:text-blue-400">{t("assistant.listening")}</span>
             </motion.div>
           )}
 
@@ -304,10 +303,10 @@ export default function AssistantPage() {
               value={selectedLang}
               onChange={(e) => setSelectedLang(e.target.value)}
               className="w-16 sm:w-20 md:w-auto px-1.5 sm:px-2 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500 text-xs sm:text-sm min-h-[48px] cursor-pointer transition-colors"
-              title="Language (optional)"
+              title={t("assistant.languageOptional")}
             >
-              {languages.map((lang) => (
-                <option key={lang.code} value={lang.code}>
+              {langOptions.map((lang) => (
+                <option key={lang.code || "auto"} value={lang.code}>
                   {lang.label}
                 </option>
               ))}
@@ -318,7 +317,7 @@ export default function AssistantPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              placeholder="Ask me anything..."
+              placeholder={t("assistant.placeholder")}
               className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base min-h-[48px] transition-all"
             />
 
@@ -330,7 +329,7 @@ export default function AssistantPage() {
                 ? "bg-blue-600 text-white shadow-lg"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                 }`}
-              title="Voice Input"
+              title={t("assistant.voiceInput")}
             >
               <Mic className="w-5 h-5" />
             </motion.button>
@@ -346,14 +345,14 @@ export default function AssistantPage() {
               onClick={handleSendMessage}
               disabled={!input.trim() || isLoading}
               className="p-2.5 sm:p-3 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-none min-h-[48px] min-w-[48px] flex items-center justify-center shadow-md hover:shadow-lg active:scale-95"
-              title="Send Message"
+              title={t("assistant.sendMessage")}
             >
               <Send className="w-5 h-5" />
             </motion.button>
           </div>
 
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center hidden sm:block">
-            🌐 Supports: हिंदी, English, বাংলা, ગુજરાતી, ಕನ್ನಡ, മലയാളം, मराठी, ଓଡ଼ିଆ, தமிழ், తెలుగు
+            🌐 {t("assistant.supports")}
           </p>
         </div>
       </div>
