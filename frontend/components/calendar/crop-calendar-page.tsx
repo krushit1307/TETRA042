@@ -126,28 +126,28 @@ export function CropCalendarPage() {
 
             {/* Season filter + Legend */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
-                    <span className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded bg-green-500 shadow-sm" aria-hidden="true" />
-                        <span className="text-gray-600 dark:text-gray-400">Sow</span>
+                <div className="flex flex-wrap items-center gap-4 sm:gap-5 text-sm sm:text-base">
+                    <span className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded bg-green-500 shadow-sm" aria-hidden="true" />
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">Sow</span>
                     </span>
-                    <span className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded bg-yellow-400 border border-yellow-500 shadow-sm" aria-hidden="true" />
-                        <span className="text-gray-600 dark:text-gray-400">Weeding</span>
+                    <span className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded bg-yellow-400 border border-yellow-500 shadow-sm" aria-hidden="true" />
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">Weeding</span>
                     </span>
-                    <span className="flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded bg-amber-500 shadow-sm" aria-hidden="true" />
-                        <span className="text-gray-600 dark:text-gray-400">Harvest</span>
+                    <span className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded bg-amber-500 shadow-sm" aria-hidden="true" />
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">Harvest</span>
                     </span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <label htmlFor="season-filter" className="text-xs font-medium text-gray-500 dark:text-gray-400">Season:</label>
+                    <label htmlFor="season-filter" className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400">Season:</label>
                     <select
                         id="season-filter"
                         value={seasonFilter}
                         onChange={(e) => setSeasonFilter(e.target.value as Season | "All")}
                         aria-label="Filter by crop season"
-                        className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-xs sm:text-sm focus:ring-2 focus:ring-green-500 outline-none"
+                        className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-green-500 outline-none"
                     >
                         <option value="All">All</option>
                         <option value="Kharif">Kharif</option>
