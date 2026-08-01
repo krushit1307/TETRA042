@@ -29,6 +29,10 @@ export default function NewsPage() {
             router.push('/market-yard')
             return
         }
+        if (page === 'calendar') {
+            router.push('/calendar')
+            return
+        }
         router.push(`/?page=${page}`)
     }
 

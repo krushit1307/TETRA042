@@ -18,6 +18,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
     { id: "assistant", label: "Assistant" },
     { id: "diagnosis", label: "Diagnosis" },
     { id: "market-yard", label: "Market Yard" },
+    { id: "calendar", label: "Calendar" },
     { id: "news", label: "Farmer News" },
     { id: "features", label: "Features" },
     { id: "about", label: "About" },

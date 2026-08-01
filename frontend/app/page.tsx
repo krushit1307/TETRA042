@@ -23,6 +23,8 @@ function AppContent() {
       router.push("/market-yard")
     } else if (page === "news") {
       router.push("/news")
+    } else if (page === "calendar") {
+      router.push("/calendar")
     } else {
       setCurrentPage(page)
     }
@@ -35,6 +37,8 @@ function AppContent() {
         router.push("/market-yard")
       } else if (pageParam === "news") {
         router.push("/news")
+      } else if (pageParam === "calendar") {
+        router.push("/calendar")
       } else {
         setCurrentPage(pageParam)
       }
