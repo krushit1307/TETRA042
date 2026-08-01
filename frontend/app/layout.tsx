@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "sonner"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { OfflineIndicator } from "@/components/offline-indicator"
+import { AppProviders } from "@/components/providers"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -33,7 +34,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <ErrorBoundary>
-          {children}
+          <AppProviders>
+            {children}
+            <OfflineIndicator />
+          </AppProviders>
           <Analytics />
           <Toaster
             position="top-right"
@@ -41,7 +45,6 @@ export default function RootLayout({
             closeButton
             duration={4000}
           />
-          <OfflineIndicator />
         </ErrorBoundary>
         <script
           type="application/ld+json"
