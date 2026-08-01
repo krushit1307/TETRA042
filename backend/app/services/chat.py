@@ -161,8 +161,6 @@ def translate_diagnosis_fields(result: Dict[str, Any], lang: str) -> Dict[str, A
             {**item, "display_name": translated_names[i] if i < len(translated_names) else item.get("display_name", "")}
             for i, item in enumerate(out["top3"])
         ]
-    if out.get("confidence_band"):
-        out["confidence_band"] = translate_text(str(out["confidence_band"]), "en", lang)
     return out
 
 

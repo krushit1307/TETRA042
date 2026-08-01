@@ -3,8 +3,13 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 ROOT = Path(__file__).resolve().parents[1]
 APP_DIR = Path(__file__).resolve().parent
+
+# Load environment variables from backend/.env
+load_dotenv(ROOT / ".env")
 
 TRAINED_MODELS_DIR = ROOT / "trained_models"
 DISEASE_DIR = TRAINED_MODELS_DIR / "disease_detection"
@@ -31,6 +36,8 @@ IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
 
 PORT = int(os.getenv("PORT", "7860"))
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+ELEVENLABS_AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
 
 # TinyLlama advisory — channel-specific output length (max_new_tokens)
 CHANNEL_MAX_TOKENS = {

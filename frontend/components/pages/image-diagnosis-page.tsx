@@ -8,15 +8,20 @@ import { Upload, CheckCircle, AlertCircle, Loader, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { Conversation } from "@elevenlabs/client"
 import { useLanguage } from "@/lib/i18n/language-context"
 import type { SupportedLanguage } from "@/lib/i18n/languages"
 
 interface DiagnosisResult {
   disease: string
   confidence: number
+  crop: string
+  confidenceBand: string
   cause: string
   treatment: string[]
   prevention: string[]
+  need_voice?: boolean
+  needVoice?: boolean
 }
 
 const langFlag = (code: string) => (code === "en" ? "🇬🇧" : "🇮🇳")
@@ -62,12 +67,25 @@ export default function ImageDiagnosisPage() {
     try {
       const response = await apiClient.imageDiagnosis(imageFile, selectedLanguage)
 
+      const rawConf = response.confidence ?? 0
+      const confPct = rawConf <= 1 ? rawConf * 100 : rawConf
+
+      const needVoice = response.need_voice ?? (response as any).needVoice ?? (
+        confPct < 70 ||
+        (response.confidence_band && response.confidence_band.toLowerCase() !== 'high') ||
+        (response.disease && response.disease.toLowerCase() === 'unknown')
+      )
+
       setDiagnosis({
         disease: response.disease,
         confidence: response.confidence,
-        cause: response.cause,
+        crop: response.crop || '',
+        confidenceBand: response.confidence_band || '',
+        cause: response.cause || '',
         treatment: response.treatment,
-        prevention: response.prevention ? [response.prevention] : []
+        prevention: response.prevention ? [response.prevention] : [],
+        need_voice: needVoice,
+        needVoice: needVoice,
       })
       toast.success(t("diagnosis.analysisComplete"), { id: 'image-analysis' })
     } catch (err: any) {
@@ -77,6 +95,8 @@ export default function ImageDiagnosisPage() {
       setDiagnosis({
         disease: "Analysis Failed",
         confidence: 0,
+        crop: "Unknown",
+        confidenceBand: "Low",
         cause: "Unable to analyze image. Please try again.",
         treatment: ["Please upload a clear image of the plant"],
         prevention: []
@@ -277,6 +297,168 @@ export default function ImageDiagnosisPage() {
                     ))}
                   </ul>
                 </div>
+
+                {/* Voice Assistant Call Section */}
+                {Boolean(diagnosis.need_voice ?? diagnosis.needVoice) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-8 rounded-2xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-6 shadow-lg dark:border-green-800 dark:from-green-950/40 dark:to-emerald-950/40"
+                  >
+                    <h3 className="text-2xl font-bold text-green-800 dark:text-green-300">
+                      🌾 Need Expert Help?
+                    </h3>
+
+                    <p className="mt-2 text-gray-700 dark:text-gray-300">
+                      Our AI recommends talking to the Sasya AI Voice Assistant for more accurate guidance.
+                    </p>
+
+                    <Button
+                      className="mt-5 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5"
+                      onClick={async () => {
+                        try {
+                          // Step 1: Get voice session details from backend
+                          let agentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_0001kyy4ph20e06tqysytfz3fkc8"
+                          let signedUrl: string | undefined = undefined
+                          let dynamicVariables: Record<string, any> = {
+                            language: selectedLanguage,
+                            crop: diagnosis.crop,
+                            disease: diagnosis.disease,
+                            confidence: diagnosis.confidence,
+                            severity: diagnosis.confidenceBand,
+                          }
+                          let sessionObject: any = null
+
+                          try {
+                            sessionObject = await apiClient.startVoiceSession({
+                              language: selectedLanguage,
+                              crop: diagnosis.crop,
+                              disease: diagnosis.disease,
+                              confidence: diagnosis.confidence,
+                              severity: diagnosis.confidenceBand,
+                            })
+                            if (sessionObject?.agent_id) {
+                              agentId = sessionObject.agent_id
+                            }
+                            if (sessionObject?.signed_url) {
+                              signedUrl = sessionObject.signed_url
+                            }
+                            if (sessionObject?.dynamic_variables) {
+                              dynamicVariables = sessionObject.dynamic_variables
+                            }
+                          } catch (backendErr) {
+                            console.warn("Backend startVoiceSession warning, using direct fallback:", backendErr)
+                          }
+
+                          // Task 3: Log EVERYTHING before startSession()
+                          console.log("🎙️ [ElevenLabs Pre-Connect Log]:")
+                          console.log("  - agent_id:", agentId)
+                          console.log("  - signed_url:", signedUrl)
+                          console.log("  - dynamicVariables:", dynamicVariables)
+                          console.log("  - selected language:", selectedLanguage)
+                          console.log("  - complete session object:", sessionObject)
+
+                          // Step 2: Start ElevenLabs conversation
+                          const goodbyePhrases = [
+                            "bye",
+                            "goodbye",
+                            "thank you",
+                            "thanks",
+                            "no more questions",
+                            "that's all",
+                            "end call",
+                            "disconnect",
+                            "stop",
+                          ]
+
+                          let shouldEndCall = false
+                          let conversationRef: any = null
+
+                          const sessionOptions: any = {
+                            dynamicVariables: dynamicVariables,
+
+                            onConnect: (props: any) => {
+                              console.log("✅ Connected to ElevenLabs. Conversation ID:", props?.conversationId, "Variables:", dynamicVariables)
+                              toast.success("Connected to Sasya AI Voice Assistant")
+                            },
+
+                            onDisconnect: (details: any) => {
+                              console.log("❌ Disconnected from ElevenLabs. Details:", JSON.stringify(details, null, 2))
+                              toast.info("Voice session ended")
+                            },
+
+                            onStatusChange: ({ status }: any) => {
+                              console.log("ℹ️ Connection status changed:", status)
+                            },
+
+                            onModeChange: async ({ mode }: any) => {
+                              console.log("🔄 Conversation mode changed:", mode)
+
+                              if (shouldEndCall && mode === "listening") {
+                                shouldEndCall = false
+                                if (conversationRef) {
+                                  console.log("🛑 Ending ElevenLabs session after AI finished speaking...")
+                                  await conversationRef.endSession()
+                                }
+                              }
+                            },
+
+                            onMessage: (messagePayload: any) => {
+                              console.log("📩 Message received:", messagePayload)
+
+                              const isUser = messagePayload.role === "user" || (messagePayload as any).source === "user"
+                              if (isUser && messagePayload.message) {
+                                const text = messagePayload.message.toLowerCase()
+                                const isGoodbye = goodbyePhrases.some((phrase) => text.includes(phrase))
+
+                                if (isGoodbye) {
+                                  console.log("👋 Goodbye phrase detected from user:", text)
+                                  shouldEndCall = true
+                                }
+                              }
+                            },
+
+                            onError: (message: any, context: any) => {
+                              console.error("❌ ElevenLabs SDK onError Callback:")
+                              console.error("  - Message:", message)
+                              console.error("  - Context:", JSON.stringify(context, null, 2))
+                              toast.error(`Voice Error: ${message || "Connection failed"}`)
+                            },
+
+                            onDebug: (info: any) => {
+                              console.log("🐛 ElevenLabs Debug Info:", info)
+                            },
+                          }
+
+                          if (signedUrl) {
+                            sessionOptions.signedUrl = signedUrl
+                          } else {
+                            sessionOptions.agentId = agentId
+                          }
+
+                          const conversation = await Conversation.startSession(sessionOptions)
+
+                          conversationRef = conversation
+                          console.log("Conversation instance created:", conversation)
+
+                        } catch (err: any) {
+                          console.error("❌ [ElevenLabs Connection Failure Breakdown]:")
+                          console.error("  - Full Error Object:", err)
+                          console.error("  - Message:", err?.message || err)
+                          console.error("  - Code:", err?.code || err?.status || err?.name || "N/A")
+                          console.error("  - Stack:", err?.stack || "N/A")
+                          console.error("  - WebSocket Close Code:", err?.websocket?.code || err?.wsCode || err?.code || "N/A")
+                          console.error("  - WebSocket Close Reason:", err?.websocket?.reason || err?.wsReason || err?.reason || "N/A")
+
+                          const errMsg = err?.message || (typeof err === "string" ? err : "Failed to connect to agent")
+                          toast.error(`Connection Failed: ${errMsg}`)
+                        }
+                      }}
+                    >
+                      📞 Call Now
+                    </Button>
+                  </motion.div>
+                )}
               </motion.div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">

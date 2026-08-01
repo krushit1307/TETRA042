@@ -31,14 +31,34 @@ async def image_diagnosis(
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
+    # -----------------------------
+    # Voice Assistant Decision Logic (Computed on canonical raw result)
+    # -----------------------------
+    raw_conf = result.get("confidence", 0)
+    conf_pct = raw_conf * 100 if raw_conf <= 1.0 else raw_conf
+
+    need_voice = (
+        conf_pct < 70
+        or str(result.get("disease", "")).lower() == "unknown"
+        or str(result.get("confidence_band", "")).lower() != "high"
+    )
+
     result = chat_service.translate_diagnosis_fields(result, language)
 
     advisory = None
     advisory_source = None
+
     if explain:
         advisory, advisory_source = chat_service.run_advisory_pipeline(
-            message, lang=language, channel=channel, diagnosis=result
+            message,
+            lang=language,
+            channel=channel,
+            diagnosis=result,
         )
+
+    prevention_val = result.get("prevention")
+    if isinstance(prevention_val, list):
+        prevention_val = " ".join(prevention_val) if prevention_val else None
 
     return DiagnosisResponse(
         disease=result["disease"],
@@ -46,9 +66,10 @@ async def image_diagnosis(
         confidence=result["confidence"],
         confidence_band=result["confidence_band"],
         crop=result["crop"],
+        need_voice=need_voice,
         cause=result.get("cause"),
         treatment=result.get("treatment", []),
-        prevention=result.get("prevention"),
+        prevention=prevention_val,
         top3=[PredictionItem(**p) for p in result.get("top3", [])],
         advisory=advisory,
         advisory_source=advisory_source,
@@ -82,8 +103,16 @@ async def agricultural_chat(
     General Q&A: agricultural_kb.json keyword retrieval → TinyLlama rewrite.
     """
     try:
-        text, source = chat_service.run_advisory_pipeline(message, lang=lang, channel=channel)
-        return ChatResponse(response=text, language=lang, source=source)
+        text, source = chat_service.run_advisory_pipeline(
+            message,
+            lang=lang,
+            channel=channel,
+        )
+        return ChatResponse(
+            response=text,
+            language=lang,
+            source=source,
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -105,9 +134,19 @@ async def chat_with_image(
 
     try:
         diagnosis = disease.diagnose(raw)
+
         text, source = chat_service.run_advisory_pipeline(
-            message, lang=lang, channel=channel, diagnosis=diagnosis
+            message,
+            lang=lang,
+            channel=channel,
+            diagnosis=diagnosis,
         )
-        return ChatResponse(response=text, language=lang, source=source)
+
+        return ChatResponse(
+            response=text,
+            language=lang,
+            source=source,
+        )
+
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
