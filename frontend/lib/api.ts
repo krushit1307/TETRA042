@@ -1,6 +1,6 @@
 // API client for Agricultural AI System Backend
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.5.108:8000'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://neel2601-sasya-ai-backend.hf.space'
 
 // Error logging helper
 function logError(endpoint: string, error: any) {
@@ -240,7 +240,7 @@ class ApiClient {
     severity: string
   }) {
     try {
-      const response = await fetch(`${this.baseUrl}/voice/start-voice-session`, {
+      const response = await fetch("/api/voice/start-voice-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -248,11 +248,14 @@ class ApiClient {
         body: JSON.stringify(data),
       })
 
+      const payload = await response.json().catch(() => null)
+
       if (!response.ok) {
-        throw new Error(`Voice session API error: ${response.statusText}`)
+        const detail = payload?.error || response.statusText || `HTTP ${response.status}`
+        throw new Error(`Voice session API error: ${detail}`)
       }
 
-      return response.json()
+      return payload
     } catch (error) {
       logError("/voice/start-voice-session", error)
       throw error

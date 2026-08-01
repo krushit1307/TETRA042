@@ -83,8 +83,8 @@ export default function ContactPage() {
             {
               icon: Phone,
               title: t("contact.phone"),
-              value: "+91-9313198911",
-              link: "tel:+91-9313198911",
+              value: "1234567890",
+              link: "tel:1234567890",
             },
             {
               icon: MapPin,
