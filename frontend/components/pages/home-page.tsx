@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Leaf, Mic, Upload, TrendingUp, Droplets, BookOpen, Smartphone } from "lucide-react"
+import { Leaf, Mic, Upload, TrendingUp, Droplets, BookOpen, Smartphone, PhoneCall, MessageCircle, Calendar } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
 
 interface HomePageProps {
@@ -25,10 +25,28 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       color: "from-blue-400 to-blue-600",
     },
     {
-      icon: TrendingUp,
+      icon: Calendar,
       title: t("home.feature3Title"),
       description: t("home.feature3Desc"),
-      color: "from-amber-400 to-amber-600",
+      color: "from-amber-400 to-orange-600",
+    },
+    {
+      icon: TrendingUp,
+      title: t("home.feature4Title"),
+      description: t("home.feature4Desc"),
+      color: "from-sky-400 to-blue-600",
+    },
+    {
+      icon: PhoneCall,
+      title: t("home.feature5Title"),
+      description: t("home.feature5Desc"),
+      color: "from-violet-400 to-violet-600",
+    },
+    {
+      icon: MessageCircle,
+      title: t("home.feature6Title"),
+      description: t("home.feature6Desc"),
+      color: "from-emerald-400 to-green-600",
     },
   ]
 
@@ -138,7 +156,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {features.map((feature, index) => {
             const Icon = feature.icon

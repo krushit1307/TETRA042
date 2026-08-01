@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Leaf, Upload, TrendingUp, BookOpen, Smartphone, Globe, Zap, Sparkles, Mic, Languages, MapPin, Handshake, PhoneCall, Calendar, Newspaper } from "lucide-react"
+import { Leaf, Upload, TrendingUp, BookOpen, Smartphone, Globe, Zap, Sparkles, Mic, Languages, MapPin, Handshake, PhoneCall, Calendar, Newspaper, MessageCircle } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
 
 export default function FeaturesPage() {
@@ -50,12 +50,25 @@ export default function FeaturesPage() {
       color: "from-emerald-500 to-teal-600",
       bgGradient: "from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10",
     },
+    {
+      icon: MessageCircle,
+      titleKey: "features.card7Title",
+      descKey: "features.card7Desc",
+      color: "from-green-500 to-emerald-600",
+      bgGradient: "from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10",
+    },
   ]
 
   const heroPoints = [
     "features.heroPoint1",
     "features.heroPoint2",
     "features.heroPoint3",
+  ]
+
+  const whatsappPoints = [
+    "features.whatsappPoint1",
+    "features.whatsappPoint2",
+    "features.whatsappPoint3",
   ]
 
   const containerVariants = {
@@ -223,6 +236,51 @@ export default function FeaturesPage() {
                   <PhoneCall className="h-14 w-14 sm:h-16 sm:w-16" />
                 </div>
               </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* WhatsApp Chat Feature */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.25 }}
+          className="relative mb-16 overflow-hidden rounded-3xl border border-green-200/70 bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 p-8 sm:p-12 shadow-2xl"
+        >
+          <div className="absolute -top-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-emerald-300/20 blur-3xl" />
+
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center">
+            <div className="flex justify-center lg:justify-start order-2 lg:order-1">
+              <div className="relative flex h-56 w-56 sm:h-64 sm:w-64 items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-white/10 animate-pulse" />
+                <div className="absolute inset-4 rounded-full bg-white/10" />
+                <div className="absolute inset-8 rounded-full bg-white/15" />
+                <div className="relative flex h-28 w-28 sm:h-32 sm:w-32 items-center justify-center rounded-full bg-white text-green-700 shadow-2xl">
+                  <MessageCircle className="h-14 w-14 sm:h-16 sm:w-16" />
+                </div>
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-green-50 backdrop-blur-sm mb-5">
+                <MessageCircle className="h-4 w-4" />
+                {t("features.whatsappBadge")}
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
+                {t("features.whatsappTitle")}
+              </h2>
+              <p className="text-green-50/95 text-lg leading-relaxed mb-6 max-w-2xl">
+                {t("features.whatsappDesc")}
+              </p>
+              <ul className="space-y-3">
+                {whatsappPoints.map((pointKey) => (
+                  <li key={pointKey} className="flex items-start gap-3 text-green-50">
+                    <span className="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold">✓</span>
+                    <span className="text-base">{t(pointKey)}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </motion.div>
