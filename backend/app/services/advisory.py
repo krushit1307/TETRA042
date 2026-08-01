@@ -465,16 +465,17 @@ Prevention: {info.get('prevention', 'Follow integrated pest management.')}{top3_
 
 def build_chat_system_prompt(channel: str = "web") -> str:
     length = {
-        "web": "Write exactly 3 short bullet points.",
-        "expo": "Write exactly 3 short bullet points.",
-        "whatsapp": "Write 2-3 very short bullet points for WhatsApp.",
+        "web": "Write exactly 3 bullet points.",
+        "expo": "Write exactly 3 bullet points.",
+        "whatsapp": "Write 2 short bullet points.",
         "voice": "Write 2-3 short spoken sentences for a phone call. No bullet symbols.",
-    }.get(channel, "Write exactly 3 short bullet points.")
+    }.get(channel, "Write exactly 3 bullet points.")
 
     format_rule = (
-        "FORMAT: Put each point on its own line starting with • "
-        "(example: '• First point\\n\\n• Second point\\n\\n• Third point'). "
-        "Leave a blank line between points. Never write one long paragraph."
+        "FORMAT: Use exactly 3 bullet points (2 for WhatsApp). "
+        "Each bullet must contain 2-3 full sentences (about 2-3 lines of practical detail). "
+        "Start each bullet with • and leave a blank line between bullets. "
+        "Do not write one-sentence bullets or a single paragraph."
         if channel != "voice"
         else ""
     )
@@ -485,7 +486,7 @@ def build_chat_system_prompt(channel: str = "web") -> str:
         "Use the facts below when available. Do not invent URLs, citations, or unlisted chemical doses. "
         "If facts are limited, give helpful general agricultural guidance and suggest consulting a local officer. "
         f"{format_rule}"
-        f"Keep answer short. {length} Use simple language."
+        f"{length} Use simple language a farmer can follow."
     )
 
 
@@ -532,8 +533,36 @@ def build_disease_prompt(
     )
 
 
-def format_as_bullets(text: str, channel: str = "web", max_points: int = 4) -> str:
-    """Turn paragraph or list text into spaced • bullet points for chat UI."""
+def _split_sentences(text: str) -> List[str]:
+    parts = [s.strip() for s in re.split(r"(?<=[.!?।])\s+", text) if len(s.strip()) > 8]
+    return [p for p in parts if not p.endswith(":") or len(p) > 40]
+
+
+def _group_sentences_into_bullets(
+    sentences: List[str], *, num_bullets: int = 3, min_per: int = 2, max_per: int = 3
+) -> List[str]:
+    if not sentences:
+        return []
+    if len(sentences) == 1:
+        return sentences
+
+    grouped: List[str] = []
+    idx = 0
+    for b in range(num_bullets):
+        if idx >= len(sentences):
+            break
+        remaining_bullets = num_bullets - b
+        remaining_sents = len(sentences) - idx
+        take = min(max_per, max(min_per, remaining_sents // remaining_bullets))
+        take = min(take, remaining_sents)
+        chunk = sentences[idx : idx + take]
+        grouped.append(" ".join(chunk))
+        idx += take
+    return grouped
+
+
+def format_as_bullets(text: str, channel: str = "web", max_points: int = 3) -> str:
+    """Format chat text as 2-3 bullets, each with 2-3 sentences."""
     if channel == "voice":
         return text.strip()
 
@@ -541,7 +570,7 @@ def format_as_bullets(text: str, channel: str = "web", max_points: int = 4) -> s
     if not text:
         return text
 
-    bullets: List[str] = []
+    chunks: List[str] = []
     if re.search(r"^[•\-\*]\s", text, re.M) or re.search(r"^\d+\.\s", text, re.M):
         for line in text.splitlines():
             line = line.strip()
@@ -549,17 +578,27 @@ def format_as_bullets(text: str, channel: str = "web", max_points: int = 4) -> s
                 continue
             line = re.sub(r"^\d+\.\s*", "", line)
             line = re.sub(r"^[•\-\*]\s*", "", line)
-            if line:
-                bullets.append(line)
+            if line and not (line.endswith(":") and len(line) < 50):
+                chunks.append(line)
     else:
-        sentences = re.split(r"(?<=[.!?।])\s+", text)
-        bullets = [s.strip() for s in sentences if len(s.strip()) > 12]
+        chunks = _split_sentences(text)
 
-    if not bullets:
+    sentences: List[str] = []
+    for chunk in chunks:
+        if len(chunk) > 180 and ". " in chunk:
+            sentences.extend(_split_sentences(chunk))
+        else:
+            sentences.append(chunk)
+
+    if not sentences:
         return text
 
-    limit = 3 if channel == "whatsapp" else max_points
-    return "\n\n".join(f"• {b}" for b in bullets[:limit])
+    num_bullets = 2 if channel == "whatsapp" else max_points
+    grouped = _group_sentences_into_bullets(sentences, num_bullets=num_bullets)
+    if not grouped:
+        return text
+
+    return "\n\n".join(f"• {b}" for b in grouped[:num_bullets])
 
 
 def format_kb_facts_only(question: str, channel: str = "web") -> str:

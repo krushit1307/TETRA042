@@ -34,9 +34,9 @@ PORT = int(os.getenv("PORT", "7860"))
 
 # TinyLlama advisory — channel-specific output length (max_new_tokens)
 CHANNEL_MAX_TOKENS = {
-    "whatsapp": 100,   # 80–120 short bullets
-    "voice": 70,       # 60–80 spoken sentences
-    "web": 180,        # 150–200 bullets + confidence
-    "expo": 180,       # same as web
+    "whatsapp": 120,
+    "voice": 70,
+    "web": 320,        # room for 3 bullets × 2-3 sentences each
+    "expo": 320,
 }
 ADVISORY_TEMPERATURE = 0.4  # 0.3–0.5 — facts only, no creativity
