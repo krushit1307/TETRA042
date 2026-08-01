@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
-import { Lock, Loader2, Eye, EyeOff } from "lucide-react"
+import { isAuthenticated, login } from "@/lib/auth"
+import { Loader2, Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 
@@ -17,21 +17,16 @@ export default function AdminLoginPage() {
     const router = useRouter()
 
     useEffect(() => {
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession()
-            if (session) {
-                router.push("/admin/dashboard")
-            }
+        if (isAuthenticated()) {
+            router.push("/admin/dashboard")
         }
-        checkSession()
 
-        // Check for saved email
         const savedEmail = localStorage.getItem("adminEmail")
         if (savedEmail) {
             setEmail(savedEmail)
             setRememberMe(true)
         }
-    }, [])
+    }, [router])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -39,23 +34,18 @@ export default function AdminLoginPage() {
         setError(null)
 
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            })
+            const success = login(email, password)
 
-            if (error) {
-                throw error
+            if (!success) {
+                throw new Error("Invalid email or password")
             }
 
-            if (data.session) {
-                if (rememberMe) {
-                    localStorage.setItem("adminEmail", email)
-                } else {
-                    localStorage.removeItem("adminEmail")
-                }
-                router.push("/admin/dashboard")
+            if (rememberMe) {
+                localStorage.setItem("adminEmail", email)
+            } else {
+                localStorage.removeItem("adminEmail")
             }
+            router.push("/admin/dashboard")
         } catch (err: any) {
             console.error(err)
             setError(err.message || "Failed to login")
@@ -148,7 +138,7 @@ export default function AdminLoginPage() {
 
                 <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 text-center">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Don't have an account? <span className="font-semibold text-green-600">Contact System Admin</span> or create a user in your Supabase dashboard.
+                        Default credentials: <span className="font-semibold text-green-600">admin@sasyaai.com</span> / <span className="font-semibold text-green-600">admin123</span>
                     </p>
                 </div>
             </motion.div>

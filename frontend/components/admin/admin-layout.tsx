@@ -16,7 +16,7 @@ import {
     Search,
     ExternalLink
 } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { logout, isAuthenticated } from "@/lib/auth"
 import Image from "next/image"
 
 interface AdminLayoutProps {
@@ -43,8 +43,14 @@ export function AdminLayout({ children, title, description, actions }: AdminLayo
         return () => window.removeEventListener('resize', checkScreen)
     }, [])
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut()
+    useEffect(() => {
+        if (!isAuthenticated()) {
+            router.push("/admin")
+        }
+    }, [router])
+
+    const handleLogout = () => {
+        logout()
         router.push("/admin")
     }
 
