@@ -1,0 +1,17 @@
+# Never commit datasets
+data/
+
+# Env secrets
+.env
+.env.local
+**/.env
+!**/.env.example
+
+# Node
+node_modules/
+.next/
+
+# Python
+**/__pycache__/
+**/.venv/
+**/venv/
