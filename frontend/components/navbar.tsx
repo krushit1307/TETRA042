@@ -69,7 +69,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
               </div>
               <div className="flex flex-col pointer-events-none">
                 <span className="font-bold text-xl text-green-600 dark:text-green-400">Sasya AI</span>
-                <span className="text-xs text-gray-600 dark:text-gray-400">KrishiMitra AI</span>
+                <span className="text-xs text-gray-600 dark:text-gray-400">The Future grow here.</span>
               </div>
             </motion.div>
 
