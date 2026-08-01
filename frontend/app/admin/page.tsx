@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { isAuthenticated, login } from "@/lib/auth"
-import { Loader2, Eye, EyeOff } from "lucide-react"
+import { Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import Link from "next/link"
 
 export default function AdminLoginPage() {
     const [email, setEmail] = useState("")
@@ -59,8 +60,16 @@ export default function AdminLoginPage() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="max-w-md w-full bg-white dark:bg-slate-900 rounded-xl shadow-xl p-8 border border-gray-200 dark:border-gray-800"
+                className="relative max-w-md w-full bg-white dark:bg-slate-900 rounded-xl shadow-xl p-8 border border-gray-200 dark:border-gray-800"
             >
+                <Link
+                    href="/"
+                    className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors mb-6"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to website
+                </Link>
+
                 <div className="flex flex-col items-center mb-8">
                     <div className="mb-6">
                         <Image
