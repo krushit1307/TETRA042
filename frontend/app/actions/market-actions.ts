@@ -1,14 +1,14 @@
 const API_BASE_URL = 'https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070'
 
 function getAPIKey() {
-    // Try both standard and public env vars to be safe, but prefer standard on server
-    return process.env.DATA_GOV_API_KEY || process.env.NEXT_PUBLIC_DATA_GOV_API_KEY || ''
+    // Market calls run in the client bundle (static export). Only NEXT_PUBLIC_ vars are available.
+    return process.env.NEXT_PUBLIC_DATA_GOV_API_KEY || process.env.DATA_GOV_API_KEY || ''
 }
 
 export async function fetchCropsFromAPI(state: string, district: string, market: string) {
     const apiKey = getAPIKey()
     if (!apiKey) {
-        console.error('API Key missing on server')
+        console.error('API Key missing — set NEXT_PUBLIC_DATA_GOV_API_KEY in frontend/.env.local')
         return null
     }
 
