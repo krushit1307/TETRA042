@@ -8,6 +8,8 @@ import { Upload, CheckCircle, AlertCircle, Loader, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/i18n/language-context"
+import type { SupportedLanguage } from "@/lib/i18n/languages"
 
 interface DiagnosisResult {
   disease: string
