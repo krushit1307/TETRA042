@@ -1,7 +1,3 @@
-
-import { supabase } from "@/lib/supabase";
-
-
 export interface NewsArticle {
     id?: string; // Optional for new articles
     source: {
@@ -21,29 +17,18 @@ export interface NewsArticle {
 }
 
 export type SupportedLanguage =
-    | 'en' // English
-    | 'hi' // Hindi
-    | 'gu' // Gujarati
-    | 'mr' // Marathi
-    | 'pa' // Punjabi
-    | 'ta' // Tamil
-    | 'te' // Telugu
-    | 'kn' // Kannada
-    | 'bn' // Bengali
-    | 'or' // Odia
+    | 'en'
+    | 'gu'
+    | 'hi'
+    | 'mr'
+    | 'pa'
+    | 'ta'
+    | 'te'
+    | 'kn'
+    | 'bn'
+    | 'or'
 
-export const LANGUAGES: { code: SupportedLanguage; name: string; localName: string }[] = [
-    { code: 'en', name: 'English', localName: 'English' },
-    { code: 'gu', name: 'Gujarati', localName: 'ગુજરાતી' },
-    { code: 'hi', name: 'Hindi', localName: 'हिन्दी' },
-    { code: 'mr', name: 'Marathi', localName: 'मराठी' },
-    { code: 'pa', name: 'Punjabi', localName: 'ਪੰਜਾਬੀ' },
-    { code: 'ta', name: 'Tamil', localName: 'தமிழ்' },
-    { code: 'te', name: 'Telugu', localName: 'తెలుగు' },
-    { code: 'kn', name: 'Kannada', localName: 'ಕನ್ನಡ' },
-    { code: 'bn', name: 'Bengali', localName: 'বাংলা' },
-    { code: 'or', name: 'Odia', localName: 'ଓଡ଼ିଆ' },
-]
+export { LANGUAGES } from '@/lib/i18n/languages'
 
 // --- UI TRANSLATIONS ---
 export const UI_TRANSLATIONS: Record<SupportedLanguage, { readMore: string; readFull: string; share: string; close: string; loading: string; noNews: string }> = {
@@ -59,87 +44,127 @@ export const UI_TRANSLATIONS: Record<SupportedLanguage, { readMore: string; read
     or: { readMore: "ଅଧିକ ପଢନ୍ତୁ", readFull: "ସମ୍ପୂର୍ଣ୍ଣ ଲେଖା ପଢନ୍ତୁ", share: "ସେୟାର କରନ୍ତୁ", close: "ବନ୍ଦ କରନ୍ତୁ", loading: "ଲୋଡ୍ ହେଉଛି ...", noNews: "କୌଣସି ଖବର ମିଳିଲା ନାହିଁ" },
 };
 
+interface StoredNewsItem {
+    id: string
+    title: string
+    content: string
+    image_url: string | null
+    video_url: string | null
+    article_url: string | null
+    language: string
+    is_top_news: boolean
+    created_at: string
+    source_name?: string
+    author?: string
+}
+
+const NEWS_STORAGE_KEY = "sasya_news_data"
+const DELETED_NEWS_KEY = "sasya_deleted_news_ids"
+
+function getStoredNews(): StoredNewsItem[] {
+    if (typeof window === "undefined") return []
+    try {
+        const data = localStorage.getItem(NEWS_STORAGE_KEY)
+        return data ? JSON.parse(data) : []
+    } catch {
+        return []
+    }
+}
+
+function saveStoredNews(items: StoredNewsItem[]) {
+    if (typeof window === "undefined") return
+    localStorage.setItem(NEWS_STORAGE_KEY, JSON.stringify(items))
+}
+
+function getDeletedIds(): Set<string> {
+    if (typeof window === "undefined") return new Set()
+    try {
+        const data = localStorage.getItem(DELETED_NEWS_KEY)
+        return new Set(data ? JSON.parse(data) : [])
+    } catch {
+        return new Set()
+    }
+}
+
+function addDeletedId(id: string) {
+    const deleted = getDeletedIds()
+    deleted.add(id)
+    if (typeof window !== "undefined") {
+        localStorage.setItem(DELETED_NEWS_KEY, JSON.stringify([...deleted]))
+    }
+}
+
+function generateId(): string {
+    return crypto.randomUUID()
+}
+
+async function fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+    })
+}
+
+function storedToArticle(item: StoredNewsItem): NewsArticle {
+    return {
+        id: item.id,
+        source: { id: "sasyaai", name: item.source_name || "Sasya AI News" },
+        author: item.author || "Admin",
+        title: item.title,
+        description: item.content ? item.content.substring(0, 150) + "..." : "",
+        url: item.article_url || `#news-${item.id}`,
+        urlToImage: item.image_url,
+        videoUrl: item.video_url,
+        publishedAt: item.created_at,
+        content: item.content,
+        language: item.language,
+        is_top_news: item.is_top_news,
+    }
+}
+
 export async function fetchAgricultureNews(language: SupportedLanguage): Promise<NewsArticle[]> {
     try {
-        // 1. Fetch any overrides/new items from Supabase
-        const { data: dbData, error } = await supabase
-            .from('news')
-            .select('*')
-            .eq('language', language)
-            .order('created_at', { ascending: false });
+        const deletedIds = getDeletedIds()
+        const storedForLang = getStoredNews().filter(
+            (item) => item.language === language && !deletedIds.has(item.id)
+        )
+        const storedMap = new Map(storedForLang.map((item) => [item.id, item]))
 
-        if (error) {
-            console.error("Supabase error:", error);
-            // Fallback to pure mock data if DB fails
-            return getMockNews(language);
-        }
+        const mockNews = getMockNews(language).filter(
+            (item) => !deletedIds.has(item.id as string)
+        )
 
-        const dbNewsMap = new Map((dbData || []).map((item: any) => [item.id, item]));
+        const mergedNews: NewsArticle[] = []
+        const processedIds = new Set<string>()
 
-        // 2. Get Mock Data
-        const mockNews = getMockNews(language);
+        mockNews.forEach((mockItem) => {
+            const storedItem = storedMap.get(mockItem.id as string)
+            processedIds.add(mockItem.id as string)
 
-        // 3. Merge: Prefer DB item if ID matches, otherwise use Mock. Add new DB items.
-        const mergedNews: NewsArticle[] = [];
-        const processedIds = new Set<string>();
-
-        // Process Mock items (overriding with DB if exists)
-        mockNews.forEach(mockItem => {
-            const dbItemRaw = dbNewsMap.get(mockItem.id as string);
-            processedIds.add(mockItem.id as string);
-
-            if (dbItemRaw) {
-                // Use DB item but mapped to our interface
-                mergedNews.push({
-                    id: dbItemRaw.id,
-                    source: { id: 'sasyaai', name: dbItemRaw.source_name || 'Sasya AI News' },
-                    author: dbItemRaw.author || 'Admin',
-                    title: dbItemRaw.title,
-                    description: dbItemRaw.content ? dbItemRaw.content.substring(0, 150) + "..." : "",
-                    url: dbItemRaw.article_url || `/news/${dbItemRaw.id}`,
-                    urlToImage: dbItemRaw.image_url,
-                    videoUrl: dbItemRaw.video_url,
-                    publishedAt: dbItemRaw.created_at,
-                    content: dbItemRaw.content,
-                    language: dbItemRaw.language,
-                    is_top_news: dbItemRaw.is_top_news
-                });
+            if (storedItem) {
+                mergedNews.push(storedToArticle(storedItem))
             } else {
-                mergedNews.push(mockItem);
+                mergedNews.push(mockItem)
             }
-        });
+        })
 
-        // Process remaining DB items (newly added by Admin)
-        dbData?.forEach((item: any) => {
+        storedForLang.forEach((item) => {
             if (!processedIds.has(item.id)) {
-                mergedNews.push({
-                    id: item.id,
-                    source: { id: 'sasyaai', name: item.source_name || 'Sasya AI News' },
-                    author: item.author || 'Admin',
-                    title: item.title,
-                    description: item.content ? item.content.substring(0, 150) + "..." : "",
-                    url: item.article_url || `/news/${item.id}`,
-                    urlToImage: item.image_url,
-                    videoUrl: item.video_url,
-                    publishedAt: item.created_at,
-                    content: item.content,
-                    language: item.language,
-                    is_top_news: item.is_top_news
-                });
+                mergedNews.push(storedToArticle(item))
             }
-        });
+        })
 
-        // Sort by is_top_news then date
         return mergedNews.sort((a, b) => {
             if (a.is_top_news === b.is_top_news) {
-                return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+                return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
             }
-            return a.is_top_news ? -1 : 1;
-        });
-
+            return a.is_top_news ? -1 : 1
+        })
     } catch (error) {
-        console.error("Failed to fetch news:", error);
-        return getMockNews(language);
+        console.error("Failed to fetch news:", error)
+        return getMockNews(language)
     }
 }
 
@@ -154,201 +179,114 @@ export async function fetchAllNewsForAdmin(): Promise<NewsArticle[]> {
 // --- Admin Operations ---
 
 export async function addNews(news: Omit<NewsArticle, 'id' | 'source' | 'author' | 'url' | 'publishedAt'> & { imageFile?: File, videoFile?: File, articleUrl?: string, publishedAt?: string }) {
-    let imageUrl = news.urlToImage;
-    let videoUrl = news.videoUrl;
+    let imageUrl = news.urlToImage
+    let videoUrl = news.videoUrl
 
-    // Upload Image
     if (news.imageFile) {
-        const fileExt = news.imageFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `news-images/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-            .from('news-images')
-            .upload(filePath, news.imageFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage.from('news-images').getPublicUrl(filePath);
-        imageUrl = data.publicUrl;
+        imageUrl = await fileToDataUrl(news.imageFile)
     }
 
-    // Upload Video (if any)
     if (news.videoFile) {
-        const fileExt = news.videoFile.name.split('.').pop();
-        const fileName = `vid-${Math.random()}.${fileExt}`;
-        const filePath = `news-videos/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-            .from('news-images')
-            .upload(filePath, news.videoFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage.from('news-images').getPublicUrl(filePath);
-        videoUrl = data.publicUrl;
+        videoUrl = await fileToDataUrl(news.videoFile)
     }
 
-    const { data, error } = await supabase
-        .from('news')
-        .insert([
-            {
-                title: news.title,
-                content: news.content,
-                image_url: imageUrl,
-                video_url: videoUrl,
-                article_url: news.articleUrl,
-                language: news.language,
-                is_top_news: news.is_top_news,
-                created_at: news.publishedAt || new Date().toISOString()
-            }
-        ])
-        .select();
+    const newItem: StoredNewsItem = {
+        id: generateId(),
+        title: news.title,
+        content: news.content || "",
+        image_url: imageUrl,
+        video_url: videoUrl || null,
+        article_url: news.articleUrl || null,
+        language: news.language,
+        is_top_news: news.is_top_news,
+        created_at: news.publishedAt || new Date().toISOString(),
+        source_name: "Sasya AI News",
+        author: "Admin",
+    }
 
-    if (error) throw error;
-    return data;
+    const stored = getStoredNews()
+    stored.push(newItem)
+    saveStoredNews(stored)
+
+    return [storedToArticle(newItem)]
 }
 
 export async function updateNews(id: string, news: Partial<NewsArticle> & { imageFile?: File, videoFile?: File, articleUrl?: string }) {
-    let imageUrl = news.urlToImage;
-    let videoUrl = news.videoUrl;
+    let imageUrl = news.urlToImage
+    let videoUrl = news.videoUrl
 
-    // Upload Image if changed
     if (news.imageFile) {
-        const fileExt = news.imageFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `news-images/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-            .from('news-images')
-            .upload(filePath, news.imageFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage.from('news-images').getPublicUrl(filePath);
-        imageUrl = data.publicUrl;
+        imageUrl = await fileToDataUrl(news.imageFile)
     }
 
-    // Upload Video if changed
     if (news.videoFile) {
-        const fileExt = news.videoFile.name.split('.').pop();
-        const fileName = `vid-${Math.random()}.${fileExt}`;
-        const filePath = `news-videos/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-            .from('news-images')
-            .upload(filePath, news.videoFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage.from('news-images').getPublicUrl(filePath);
-        videoUrl = data.publicUrl;
+        videoUrl = await fileToDataUrl(news.videoFile)
     }
 
-    const updates: any = {
-        title: news.title,
-        content: news.content,
-        language: news.language,
-        is_top_news: news.is_top_news,
-        article_url: news.articleUrl,
-        ...(imageUrl && { image_url: imageUrl }),
-        ...(videoUrl && { video_url: videoUrl }),
-        ...(news.publishedAt && { created_at: news.publishedAt })
-    };
+    const stored = getStoredNews()
+    const existingIndex = stored.findIndex((item) => item.id === id)
 
-    // 1. Try to Update
-    const { data, error } = await supabase
-        .from('news')
-        .update(updates)
-        .eq('id', id)
-        .select();
-
-    if (error) {
-        console.warn("Update failed:", error);
-        return null; // Or throw
-    }
-
-    // 2. If no data returned (meaning row didn't exist, e.g. it was a pure Mock item), we need to UPSERT/INSERT it.
-    if (!data || data.length === 0) {
-        // Find the original mock item to fill in missing fields
-        // We assume 'en' as base or try to find the item in MASTER_NEWS_DATA directly.
-        // But MASTER_NEWS_DATA items don't strictly have a 'language' property on the root, they have translations.
-        // Effectively, when we edit a mock item, we are "instantiating" it into the DB.
-
-        const mockItem = MASTER_NEWS_DATA.find(m => m.id === id);
-
-        if (mockItem) {
-            const lang = news.language || 'en';
-            // @ts-ignore
-            const translation = mockItem.translations[lang] || mockItem.translations['en'];
-
-            const newItemPayload = {
-                id: id, // KEEP the same ID so future updates work
-                title: updates.title || translation.title,
-                content: updates.content || translation.content,
-                image_url: updates.image_url || mockItem.image,
-                video_url: updates.video_url, // Mock doesn't have video usually, but ok
-                article_url: updates.article_url || mockItem.link,
-                language: lang,
-                is_top_news: updates.is_top_news ?? mockItem.is_top,
-                created_at: updates.created_at || mockItem.date
-            };
-
-            const { data: insertData, error: insertError } = await supabase
-                .from('news')
-                .insert([newItemPayload])
-                .select();
-
-            if (insertError) {
-                console.error("Failed to materialize mock item:", insertError);
-                throw insertError;
-            }
-            return insertData;
+    if (existingIndex >= 0) {
+        const existing = stored[existingIndex]
+        const updated: StoredNewsItem = {
+            ...existing,
+            title: news.title ?? existing.title,
+            content: news.content ?? existing.content,
+            language: news.language ?? existing.language,
+            is_top_news: news.is_top_news ?? existing.is_top_news,
+            article_url: news.articleUrl ?? existing.article_url,
+            image_url: imageUrl ?? existing.image_url,
+            video_url: videoUrl ?? existing.video_url,
+            created_at: news.publishedAt ?? existing.created_at,
         }
+        stored[existingIndex] = updated
+        saveStoredNews(stored)
+        return [storedToArticle(updated)]
     }
 
-    return data;
+    const mockItem = MASTER_NEWS_DATA.find((m) => m.id === id)
+    if (mockItem) {
+        const lang = news.language || "en"
+        // @ts-ignore
+        const translation = mockItem.translations[lang] || mockItem.translations["en"]
+
+        const newItem: StoredNewsItem = {
+            id,
+            title: news.title || translation.title,
+            content: news.content || translation.content,
+            image_url: imageUrl || mockItem.image,
+            video_url: videoUrl || null,
+            article_url: news.articleUrl || mockItem.link,
+            language: lang,
+            is_top_news: news.is_top_news ?? mockItem.is_top,
+            created_at: news.publishedAt || mockItem.date,
+            source_name: mockItem.publisher,
+            author: mockItem.author,
+        }
+        stored.push(newItem)
+        saveStoredNews(stored)
+        return [storedToArticle(newItem)]
+    }
+
+    return null
 }
 
 export async function getNewsById(id: string): Promise<NewsArticle | null> {
-    // 1. Try fetching from Supabase
-    const { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (!error && data) {
-        return {
-            id: data.id,
-            source: { id: 'sasyaai', name: 'Sasya AI News' },
-            author: 'Admin',
-            title: data.title,
-            description: data.content ? data.content.substring(0, 150) + "..." : "",
-            url: data.article_url || `/news/${data.id}`,
-            urlToImage: data.image_url,
-            videoUrl: data.video_url,
-            publishedAt: data.created_at,
-            content: data.content,
-            language: data.language,
-            is_top_news: data.is_top_news
-        };
+    const stored = getStoredNews().find((item) => item.id === id)
+    if (stored) {
+        return storedToArticle(stored)
     }
 
-    // 2. Fallback: Search in Mock Data
-    const allMock = getMockNews('en');
-    const mockItem = allMock.find(n => n.id === id);
-    return mockItem || null;
+    const allMock = getMockNews("en")
+    const mockItem = allMock.find((n) => n.id === id)
+    return mockItem || null
 }
 
 export async function deleteNews(id: string) {
-    if (id.startsWith('mock-') || id.length < 5) {
-        // It's a mock item, treat as success
-        return true;
-    }
-    const { error } = await supabase.from('news').delete().eq('id', id);
-    if (error) throw error;
-    return true;
+    addDeletedId(id)
+    const stored = getStoredNews().filter((item) => item.id !== id)
+    saveStoredNews(stored)
+    return true
 }
 
 // --- Mock Data ---

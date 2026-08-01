@@ -7,25 +7,29 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog"
-import { NewsArticle, SupportedLanguage, UI_TRANSLATIONS } from "@/lib/news-service"
+import { NewsArticle } from "@/lib/news-service"
 import Image from "next/image"
 import { Calendar, Globe, ExternalLink, Share2, User } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
+import { translate } from "@/lib/i18n/translate"
 
 interface NewsDetailModalProps {
     article: NewsArticle | null
     isOpen: boolean
     onClose: () => void
-    language: SupportedLanguage
 }
 
-export function NewsDetailModal({ article, isOpen, onClose, language }: NewsDetailModalProps) {
+export function NewsDetailModal({ article, isOpen, onClose }: NewsDetailModalProps) {
+    const { language } = useLanguage()
+
     if (!article) return null
 
     const timeAgo = new Date(article.publishedAt).toLocaleDateString(undefined, {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 
-    const t = UI_TRANSLATIONS[language] || UI_TRANSLATIONS.en;
+    const readFull = translate("news.readFull", language)
+    const share = translate("news.share", language)
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -84,7 +88,7 @@ export function NewsDetailModal({ article, isOpen, onClose, language }: NewsDeta
                                 rel="noopener noreferrer"
                                 className="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors"
                             >
-                                {t.readFull} <ExternalLink className="w-4 h-4" />
+                                {readFull} <ExternalLink className="w-4 h-4" />
                             </a>
                             <button
                                 onClick={() => {
@@ -100,10 +104,10 @@ export function NewsDetailModal({ article, isOpen, onClose, language }: NewsDeta
                                     }
                                 }}
                                 className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2.5 rounded-lg font-medium transition-colors"
-                                title="Share or Copy Link"
+                                title={share}
                             >
                                 <Share2 className="w-4 h-4" />
-                                {t.share}
+                                {share}
                             </button>
                         </div>
                     </div>

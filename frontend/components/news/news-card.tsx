@@ -3,20 +3,22 @@
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { Calendar, Globe, ExternalLink } from "lucide-react"
-import { NewsArticle, SupportedLanguage, UI_TRANSLATIONS } from "@/lib/news-service"
+import { NewsArticle } from "@/lib/news-service"
+import { useLanguage } from "@/lib/i18n/language-context"
+import { translate } from "@/lib/i18n/translate"
 
 interface NewsCardProps {
     article: NewsArticle
     onClick: () => void
-    language: SupportedLanguage
 }
 
-export function NewsCard({ article, onClick, language }: NewsCardProps) {
+export function NewsCard({ article, onClick }: NewsCardProps) {
+    const { language } = useLanguage()
     const timeAgo = new Date(article.publishedAt).toLocaleDateString(undefined, {
         day: 'numeric', month: 'short', year: 'numeric'
     });
 
-    const t = UI_TRANSLATIONS[language] || UI_TRANSLATIONS.en;
+    const readMore = translate("news.readMore", language);
 
     const handleClick = () => {
         // If it's an external URL (starts with http), redirect
@@ -75,7 +77,7 @@ export function NewsCard({ article, onClick, language }: NewsCardProps) {
                 </h3>
 
                 <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-4 flex-grow">
-                    {article.description || t.readMore + "..."}
+                    {article.description || readMore + "..."}
                 </p>
 
                 <div className="flex items-center justify-between mt-auto text-xs text-gray-500 dark:text-gray-500 pt-3 border-t border-gray-100 dark:border-gray-800">
@@ -84,7 +86,7 @@ export function NewsCard({ article, onClick, language }: NewsCardProps) {
                         <span>{timeAgo}</span>
                     </div>
                     <div className="flex items-center gap-1 text-green-600 dark:text-green-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                        {t.readMore} <ExternalLink className="w-3 h-3" />
+                        {readMore} <ExternalLink className="w-3 h-3" />
                     </div>
                 </div>
             </div>

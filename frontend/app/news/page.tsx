@@ -7,18 +7,19 @@ import Navbar from "@/components/navbar"
 import { NewsCard } from "@/components/news/news-card"
 import { NewsFilter } from "@/components/news/news-filter"
 import { NewsDetailModal } from "@/components/news/news-detail-modal"
-import { fetchAgricultureNews, NewsArticle, SupportedLanguage } from "@/lib/news-service"
-import { Loader2, AlertCircle, RefreshCw, Globe } from "lucide-react"
-
+import { fetchAgricultureNews, NewsArticle } from "@/lib/news-service"
+import { AlertCircle, RefreshCw } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
+import type { SupportedLanguage } from "@/lib/i18n/languages"
 
 import { TopNewsCarousel } from "@/components/news/top-news-carousel"
 
 export default function NewsPage() {
     const router = useRouter()
+    const { language, setLanguage, t } = useLanguage()
     const [news, setNews] = useState<NewsArticle[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [language, setLanguage] = useState<SupportedLanguage>('en')
     const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -27,6 +28,10 @@ export default function NewsPage() {
         if (page === 'news') return
         if (page === 'market-yard') {
             router.push('/market-yard')
+            return
+        }
+        if (page === 'calendar') {
+            router.push('/calendar')
             return
         }
         router.push(`/?page=${page}`)
@@ -40,7 +45,7 @@ export default function NewsPage() {
             setNews(data)
         } catch (err: any) {
             console.error("Failed to load news:", err)
-            setError(err.message || "Failed to fetch news. Please check your internet connection or try again later.")
+            setError(err.message || t("news.fetchFailed"))
         } finally {
             setLoading(false)
         }
@@ -73,10 +78,10 @@ export default function NewsPage() {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                                <span className="text-green-600">Farmer</span> News
+                                {t("news.title")}
                             </h1>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                Latest updates on agriculture, policies, and farming in India
+                                {t("news.subtitle")}
                             </p>
                         </div>
                         <NewsFilter
@@ -100,13 +105,13 @@ export default function NewsPage() {
                         <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-full mb-4">
                             <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Unable to load news</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t("news.unableToLoad")}</h3>
                         <p className="text-gray-500 max-w-md mb-6">{error}</p>
                         <button
                             onClick={() => loadNews(language)}
                             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
                         >
-                            <RefreshCw className="w-4 h-4" /> Try Again
+                            <RefreshCw className="w-4 h-4" /> {t("common.tryAgain")}
                         </button>
                     </div>
                 ) : loading ? (
@@ -127,14 +132,14 @@ export default function NewsPage() {
                         <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-full mb-4">
                             <NewspaperIcon className="w-10 h-10 text-gray-400" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No news articles found</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t("news.noArticles")}</h3>
                         <p className="text-gray-500">
-                            We couldn't find any agriculture news in {language === 'en' ? 'English' : 'the selected language'} at the moment.
+                            {t("news.noArticlesLang")}
                         </p>
                     </div>
                 ) : (
                     <>
-                        {displayTopNews.length > 0 && <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Latest Updates</h2>}
+                        {displayTopNews.length > 0 && <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t("news.latestUpdates")}</h2>}
                         <motion.div
                             layout
                             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -145,7 +150,6 @@ export default function NewsPage() {
                                         key={`${article.url}-${index}`}
                                         article={article}
                                         onClick={() => handleArticleClick(article)}
-                                        language={language}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -158,7 +162,6 @@ export default function NewsPage() {
                 article={selectedArticle}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                language={language}
             />
         </div>
     )
