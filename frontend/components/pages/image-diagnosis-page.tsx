@@ -2,13 +2,12 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Upload, CheckCircle, AlertCircle, Loader, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { Conversation } from "@elevenlabs/client"
 
 interface DiagnosisResult {
   disease: string
@@ -22,26 +21,20 @@ interface DiagnosisResult {
   needVoice?: boolean
 }
 
-const languages = [
-  { code: 'hi', name: 'Hindi (हिंदी)', flag: '🇮🇳' },
-  { code: 'mr', name: 'Marathi (मराठी)', flag: '🇮🇳' },
-  { code: 'ta', name: 'Tamil (தமிழ்)', flag: '🇮🇳' },
-  { code: 'te', name: 'Telugu (తెలుగు)', flag: '🇮🇳' },
-  { code: 'kn', name: 'Kannada (ಕನ್ನಡ)', flag: '🇮🇳' },
-  { code: 'ml', name: 'Malayalam (മലയാളം)', flag: '🇮🇳' },
-  { code: 'gu', name: 'Gujarati (ગુજરાતી)', flag: '🇮🇳' },
-  { code: 'bn', name: 'Bengali (বাংলা)', flag: '🇮🇳' },
-  { code: 'or', name: 'Odia (ଓଡ଼ିଆ)', flag: '🇮🇳' },
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-]
+const langFlag = (code: string) => (code === "en" ? "🇬🇧" : "🇮🇳")
 
 export default function ImageDiagnosisPage() {
+  const { t, language, languages } = useLanguage()
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [selectedLanguage, setSelectedLanguage] = useState('en')
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(language)
+
+  useEffect(() => {
+    setSelectedLanguage(language)
+  }, [language])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -59,14 +52,14 @@ export default function ImageDiagnosisPage() {
 
   const handleDiagnosis = async () => {
     if (!imageFile) {
-      toast.error('Please upload an image first.')
+      toast.error(t("diagnosis.uploadFirst"))
       return
     }
 
     setLoading(true)
     setError(null)
     setDiagnosis(null)
-    toast.loading('Analyzing image...', { id: 'image-analysis' })
+    toast.loading(t("diagnosis.analyzingImage"), { id: 'image-analysis' })
 
     try {
       const response = await apiClient.imageDiagnosis(imageFile, selectedLanguage)
@@ -91,11 +84,11 @@ export default function ImageDiagnosisPage() {
         need_voice: needVoice,
         needVoice: needVoice,
       })
-      toast.success('Analysis complete!', { id: 'image-analysis' })
+      toast.success(t("diagnosis.analysisComplete"), { id: 'image-analysis' })
     } catch (err: any) {
       console.error('Image diagnosis error:', err)
-      toast.error('Failed to analyze image. Please try again.', { id: 'image-analysis' })
-      setError('Failed to analyze image. Please try again.')
+      toast.error(t("diagnosis.analysisFailed"), { id: 'image-analysis' })
+      setError(t("diagnosis.analysisFailed"))
       setDiagnosis({
         disease: "Analysis Failed",
         confidence: 0,
@@ -114,9 +107,9 @@ export default function ImageDiagnosisPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 dark:from-gray-950 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-4">Crop Disease Diagnosis</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-4">{t("diagnosis.title")}</h1>
           <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 px-4">
-            Upload a photo of your plant and get instant AI-powered diagnosis
+            {t("diagnosis.subtitle")}
           </p>
         </motion.div>
 
@@ -127,7 +120,7 @@ export default function ImageDiagnosisPage() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200 dark:border-gray-800"
           >
-            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900 dark:text-white">Upload Plant Image</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t("diagnosis.uploadTitle")}</h2>
 
             <label className="block">
               <div className="border-2 border-dashed border-green-300 dark:border-green-700 rounded-xl p-8 text-center cursor-pointer hover:border-green-500 transition-colors">
@@ -142,16 +135,16 @@ export default function ImageDiagnosisPage() {
                       alt="Uploaded"
                       className="w-full h-64 object-cover rounded-lg"
                     />
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Click to change image</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{t("diagnosis.clickChange")}</p>
                   </motion.div>
                 ) : (
                   <div className="space-y-4">
                     <Upload className="w-12 h-12 mx-auto text-green-600 dark:text-green-400" />
                     <div>
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">Click to upload</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">or drag and drop</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">{t("diagnosis.clickUpload")}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{t("diagnosis.dragDrop")}</p>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">{t("diagnosis.fileTypes")}</p>
                   </div>
                 )}
               </div>
@@ -172,25 +165,25 @@ export default function ImageDiagnosisPage() {
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Analyzing...
+                      {t("diagnosis.analyzing")}
                     </>
                   ) : (
-                    'Diagnose Disease'
+                    t("diagnosis.diagnoseButton")
                   )}
                 </Button>
 
                 <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Language / भाषा चुनें</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t("diagnosis.selectLanguage")}</label>
                   <div className="relative">
                     <select
                       value={selectedLanguage}
-                      onChange={(e) => setSelectedLanguage(e.target.value)}
+                      onChange={(e) => setSelectedLanguage(e.target.value as SupportedLanguage)}
                       className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md dark:bg-gray-800 dark:text-white dark:border-gray-700"
                       style={{ border: '1px solid #e5e7eb' }}
                     >
                       {languages.map((lang) => (
                         <option key={lang.code} value={lang.code}>
-                          {lang.flag} {lang.name}
+                          {langFlag(lang.code)} {lang.name} ({lang.nativeName})
                         </option>
                       ))}
                     </select>
@@ -206,7 +199,7 @@ export default function ImageDiagnosisPage() {
                   }}
                   className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
                 >
-                  Clear Image
+                  {t("diagnosis.clearImage")}
                 </Button>
               </motion.div>
             )}
@@ -218,7 +211,7 @@ export default function ImageDiagnosisPage() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-lg border border-gray-200 dark:border-gray-800"
           >
-            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900 dark:text-white">Analysis Result</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900 dark:text-white">{t("diagnosis.resultTitle")}</h2>
 
             {loading ? (
               <div className="flex flex-col items-center justify-center py-12 space-y-4">
@@ -228,13 +221,13 @@ export default function ImageDiagnosisPage() {
                 >
                   <Loader className="w-12 h-12 text-green-600 dark:text-green-400" />
                 </motion.div>
-                <p className="text-gray-600 dark:text-gray-400">Analyzing your plant image...</p>
+                <p className="text-gray-600 dark:text-gray-400">{t("diagnosis.analyzingPlant")}</p>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-12 text-center text-red-500 dark:text-red-400">
                 <AlertCircle className="w-12 h-12 mb-4" />
                 <p className="text-lg font-semibold">{error}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Please try uploading a different image or check your internet connection.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{t("diagnosis.tryDifferent")}</p>
               </div>
             ) : diagnosis ? (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -258,13 +251,13 @@ export default function ImageDiagnosisPage() {
 
                 {/* Cause */}
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Cause</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">{t("diagnosis.cause")}</h4>
                   <p className="text-gray-600 dark:text-gray-400">{diagnosis.cause}</p>
                 </div>
 
                 {/* Treatment */}
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Treatment</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">{t("diagnosis.treatment")}</h4>
                   <ul className="space-y-2">
                     {diagnosis.treatment.map((item, index) => (
                       <motion.li
@@ -283,7 +276,7 @@ export default function ImageDiagnosisPage() {
 
                 {/* Prevention */}
                 <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Prevention</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">{t("diagnosis.prevention")}</h4>
                   <ul className="space-y-2">
                     {diagnosis.prevention.map((item, index) => (
                       <motion.li
@@ -447,7 +440,7 @@ export default function ImageDiagnosisPage() {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <Upload className="w-12 h-12 text-gray-400 mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">Upload an image to see diagnosis results</p>
+                <p className="text-gray-600 dark:text-gray-400">{t("diagnosis.uploadPrompt")}</p>
               </div>
             )}
           </motion.div>
