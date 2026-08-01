@@ -90,9 +90,9 @@ def is_loaded() -> bool:
 
 
 def confidence_band(prob: float) -> str:
-    if prob >= 0.80:
+    if prob >= 0.70:
         return "high"
-    if prob >= 0.55:
+    if prob >= 0.50:
         return "medium"
     return "low"
 

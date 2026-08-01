@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import PORT
-from app.routes import diagnose, health, speech
+from app.routes import diagnose, health, speech, voice
 from app.services import advisory, disease, models as model_registry
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
@@ -44,6 +44,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(diagnose.router)
 app.include_router(speech.router)
+app.include_router(voice.router)
 
 
 if __name__ == "__main__":

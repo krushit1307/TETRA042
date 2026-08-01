@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -21,9 +21,10 @@ class DiagnosisResponse(BaseModel):
     confidence: float
     confidence_band: str
     crop: str
+    need_voice: bool = False
     cause: Optional[str] = None
     treatment: List[str] = Field(default_factory=list)
-    prevention: Optional[str] = None
+    prevention: Optional[Union[str, List[str]]] = None
     top3: List[PredictionItem] = Field(default_factory=list)
     advisory: Optional[str] = None
     advisory_source: Optional[str] = None

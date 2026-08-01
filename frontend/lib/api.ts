@@ -26,13 +26,26 @@ export interface SpeechToTextResponse {
   note?: string
 }
 
+export interface PredictionItem {
+  label: string
+  display_name: string
+  confidence: number
+}
+
 export interface DiagnosisResponse {
   disease: string
+  display_name: string
   confidence: number
+  confidence_band: string
+  crop: string
+  need_voice: boolean
+  cause?: string | null
   treatment: string[]
-  cause: string
-  prevention: string
-  top_3_predictions?: { disease: string; confidence: number }[]
+  prevention?: string | null
+  top3?: PredictionItem[]
+  top_3_predictions?: PredictionItem[]
+  advisory?: string | null
+  advisory_source?: string | null
 }
 
 export interface CropClassificationResponse {
@@ -217,6 +230,33 @@ class ApiClient {
     }
 
     return response.blob()
+  }
+
+  async startVoiceSession(data: {
+    language: string
+    crop: string
+    disease: string
+    confidence: number
+    severity: string
+  }) {
+    try {
+      const response = await fetch(`${this.baseUrl}/voice/start-voice-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Voice session API error: ${response.statusText}`)
+      }
+
+      return response.json()
+    } catch (error) {
+      logError("/voice/start-voice-session", error)
+      throw error
+    }
   }
 }
 
