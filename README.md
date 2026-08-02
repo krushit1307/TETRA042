@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌱 Sasya AI · KrishiMitra
+# 🌱 Sasya AI · The Future Grows Here
 
 ### *The Future Grows Here — AI-Powered Farming for Every Indian Farmer*
 
