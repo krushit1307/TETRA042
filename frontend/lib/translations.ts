@@ -1,6 +1,9 @@
 // Multilingual translations for Market Yard
 // Supports Gujarati, Hindi, English, and more
 
+import { applyBrandName } from "@/lib/i18n/helpers"
+import type { SupportedLanguage } from "@/lib/i18n/languages"
+
 export interface Language {
     code: string
     name: string
@@ -975,5 +978,6 @@ export const translations: { [key: string]: { [lang: string]: string } } = {
 }
 
 export function t(key: string, lang: string = 'en'): string {
-    return translations[key]?.[lang] || translations[key]?.['en'] || key
+    const raw = translations[key]?.[lang] || translations[key]?.['en'] || key
+    return applyBrandName(raw, lang as SupportedLanguage)
 }

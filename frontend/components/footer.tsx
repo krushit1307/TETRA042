@@ -18,7 +18,7 @@ export default function Footer() {
               <div className="relative w-12 h-12 flex-shrink-0">
                 <Image
                   src="/Sasya_bg.png"
-                  alt="Sasya AI Logo"
+                  alt={t("nav.brandName")}
                   fill
                   className="object-contain"
                 />
