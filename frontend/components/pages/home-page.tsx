@@ -4,6 +4,17 @@ import { motion } from "framer-motion"
 import { Leaf, Mic, Upload, TrendingUp, Droplets, BookOpen, Smartphone, PhoneCall, MessageCircle, Calendar } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
 
+const AndroidFullIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    {/* Head */}
+    <path d="M17.06 9.87H6.94c0-2.79 2.27-5.06 5.06-5.06s5.06 2.27 5.06 5.06zm-6.86-2.5c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm3.6 0c-.28 0-.5.22-.5.5s.22.5.5.5.5-.22.5-.5-.22-.5-.5-.5zm.44-3.32l1.04-1.8c.07-.12.03-.28-.1-.35-.12-.07-.28-.03-.35.1l-1.07 1.84c-1.11-.53-2.38-.53-3.49 0L9.2 1.71c-.07-.12-.22-.17-.35-.1-.12.07-.17.22-.1.35l1.04 1.8c-1.84 1.01-3.13 2.87-3.41 5.05h11.23c-.28-2.18-1.57-4.04-3.41-5.05z" />
+    {/* Body */}
+    <path d="M17.06 10.5H6.94c-.46 0-.84.38-.84.84v5.47c0 .46.38.84.84.84h1.27v2.95c0 .7.56 1.26 1.26 1.26s1.26-.56 1.26-1.26v-2.95h2.53v2.95c0 .7.56 1.26 1.26 1.26s1.26-.56 1.26-1.26v-2.95h1.27c.46 0 .84-.38.84-.84v-5.47c0-.46-.38-.84-.84-.84z" />
+    {/* Arms */}
+    <path d="M4.83 10.5c-.7 0-1.26.56-1.26 1.26v3.79c0 .7.56 1.26 1.26 1.26s1.26-.56 1.26-1.26v-3.79c0-.7-.56-1.26-1.26-1.26zM19.17 10.5c-.7 0-1.26.56-1.26 1.26v3.79c0 .7.56 1.26 1.26 1.26s1.26-.56 1.26-1.26v-3.79c0-.7-.56-1.26-1.26-1.26z" />
+  </svg>
+)
+
 interface HomePageProps {
   onNavigate: (page: string) => void
 }
@@ -86,6 +97,27 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             transition={{ duration: 10, repeat: Number.POSITIVE_INFINITY, delay: 2 }}
             className="absolute bottom-10 right-10 w-72 h-72 bg-amber-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
           />
+        </div>
+
+        {/* Absolute App Download Button (Top Right) */}
+        <div className="absolute top-6 right-4 sm:right-6 lg:right-8 z-30 hidden md:block">
+          <motion.a
+            href="/sasya-ai-app.apk"
+            download="Sasya-AI.apk"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600 hover:from-emerald-500 hover:via-green-600 hover:to-emerald-700 text-white px-5 py-2.5 rounded-full font-bold text-sm transition-all shadow-[0_4px_20px_rgb(16,185,129,0.4)] border border-white/40 overflow-hidden group"
+          >
+            {/* Glossy shine effect */}
+            <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/50 to-transparent rounded-t-full pointer-events-none" />
+            <div className="absolute -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-40 group-hover:animate-shine" />
+            
+            <AndroidFullIcon className="w-5 h-5 relative z-10" />
+            <span className="relative z-10 drop-shadow-md">Get Android App</span>
+          </motion.a>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

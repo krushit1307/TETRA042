@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Globe } from "lucide-react"
 import Image from "next/image"
+
 import { useLanguage } from "@/lib/i18n/language-context"
 import type { SupportedLanguage } from "@/lib/i18n/languages"
 
