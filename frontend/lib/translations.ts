@@ -540,11 +540,36 @@ export const cropTranslations: { [key: string]: { [lang: string]: string } } = {
     'Cowpea(Fodder)': { en: 'Cowpea(Fodder)', gu: 'ચોળી ચારો', hi: 'लोबिया चारा', mr: 'चवळी चारा', pa: 'ਲੋਬੀਆ ਚਾਰਾ', ta: 'தட்டைப்பயறு தீவனம்', te: 'అలసంద గడ్డి', kn: 'ಅಲಸಂದೆ ಮೇವು', bn: 'বরবটি খড়', or: 'ଚଉଳି ଚାର' },
     'Wheat(Fodder)': { en: 'Wheat(Fodder)', gu: 'ઘઉં ચારો', hi: 'गेहूं चारा', mr: 'गहू चारा', pa: 'ਕਣਕ ਚਾਰਾ', ta: 'கோதுமை தீவனம்', te: 'గోధుమ గడ్డి', kn: 'ಗೋಧಿ ಮೇವು', bn: 'গম খড়', or: 'ଗହମ ଚାର' },
 
+    'Cumin': { en: 'Cumin', gu: 'જીરું', hi: 'जीरा', mr: 'जिरे', pa: 'ਜੀਰਾ', ta: 'சீரகம்', te: 'జీలకర్ర', kn: 'ಜೀರಿಗೆ', bn: 'જીરા', or: 'ଜିରା' },
+    'Jeera': { en: 'Cumin', gu: 'જીરું', hi: 'जीरा', mr: 'जिरे', pa: 'ਜੀરા', ta: 'சீரகம்', te: 'జీలకర్ર', kn: 'જીರಿಗೆ', bn: 'જીરા', or: 'ଜିରା' },
+    'Sesame': { en: 'Sesame', gu: 'તલ', hi: 'तिल', mr: 'તીળ', pa: 'ਤਿਲ', ta: 'எள்', te: 'નુવ્વુ લુ', kn: 'એળ્ળુ', bn: 'તિલ', or: 'તિળ' },
+    'Til': { en: 'Sesame', gu: 'તલ', hi: 'તિલ', mr: 'તીળ', pa: 'તિલ', ta: 'எள்', te: 'નુવ્વુ લુ', kn: 'એળ્ળુ', bn: 'તિલ', or: 'તિળ' },
 }
 
 export function translateCropName(cropName: string, lang: string): string {
-    const translation = cropTranslations[cropName]?.[lang]
-    if (translation && lang !== 'en' && translation !== cropName) {
+    if (!cropName) return ""
+    if (lang === 'en') return cropName
+
+    let entry = cropTranslations[cropName]
+
+    if (!entry) {
+        const cleanKey = cropName.split('(')[0].trim()
+        entry = cropTranslations[cleanKey]
+    }
+
+    if (!entry) {
+        const lower = cropName.toLowerCase().trim()
+        const foundKey = Object.keys(cropTranslations).find(k => {
+            const kl = k.toLowerCase()
+            return kl === lower || kl.startsWith(lower) || lower.startsWith(kl) || kl.includes(lower) || lower.includes(kl)
+        })
+        if (foundKey) {
+            entry = cropTranslations[foundKey]
+        }
+    }
+
+    const translation = entry?.[lang]
+    if (translation && translation !== cropName) {
         return `${translation} (${cropName})`
     }
     return translation || cropName

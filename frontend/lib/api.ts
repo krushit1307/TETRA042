@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://neel2601-sasya-
 // Error logging helper
 function logError(endpoint: string, error: any) {
   console.error(`API Error [${endpoint}]:`, {
-    message: error.message,
+    message: error?.message || String(error || "Unknown error"),
     timestamp: new Date().toISOString(),
     endpoint,
   })

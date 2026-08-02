@@ -23,7 +23,11 @@ export function getBrandName(lang: SupportedLanguage): string {
 }
 
 export function applyBrandName(text: string, lang: SupportedLanguage): string {
-    return text.split(BRAND_PLACEHOLDER).join(getBrandName(lang))
+    if (typeof text !== "string") {
+        return text ? String(text) : ""
+    }
+    const brandName = getBrandName(lang) || BRAND_PLACEHOLDER
+    return text.split(BRAND_PLACEHOLDER).join(brandName)
 }
 
 /** Build a hardcoded translation entry for all 10 supported languages */
